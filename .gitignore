@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.venv/
+venv/
+env/
+
+# PyInstaller build output
+build/
+dist/
+
+# Runtime data
+eyebags.db
+eyebags.db.backup
+*.db-shm
+*.db-wal
+logs/
+
+# Planning/scratch docs
+dj-song-app-plan.md
+
+# Claude Code
+.claude/

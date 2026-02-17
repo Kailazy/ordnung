@@ -1,0 +1,7 @@
+flask
+watchdog
+pywebview
+qtpy
+PyQt6
+PyQt6-WebEngine
+pyinstaller

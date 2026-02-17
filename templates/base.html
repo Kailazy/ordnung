@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>eyebags terminal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="shell">
+    <nav class="sidebar">
+      <div class="logo">eyebags<br>terminal</div>
+      <div class="nav-tabs">
+        <button class="nav-btn active" data-tab="library">library</button>
+        <button class="nav-btn" data-tab="downloads">downloads</button>
+      </div>
+      <div class="sidebar-footer">local dj utility</div>
+    </nav>
+    <main class="content">
+      <div id="tab-library" class="tab-panel active"></div>
+      <div id="tab-downloads" class="tab-panel"></div>
+    </main>
+  </div>
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal" id="modal"></div>
+  </div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
