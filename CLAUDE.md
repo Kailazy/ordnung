@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Agent Behavior
+
+- When a request is ambiguous or missing details that would meaningfully affect the approach, ask a concise clarifying question before proceeding.
+
 ## Project Overview
 
 **Eyebags Terminal** is a desktop DJ utility for managing music playlists and converting audio files to AIFF format. It runs as a local Flask web server with a native window powered by PyWebView + PyQt6. FFmpeg is required at runtime for audio conversion.

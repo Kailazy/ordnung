@@ -1,15 +1,10 @@
-# Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.egg-info/
-.venv/
-venv/
-env/
+# Node
+node_modules/
 
-# PyInstaller build output
-build/
+# Rust / Tauri build output
+src-tauri/target/
+
+# Vite build output
 dist/
 
 # Runtime data
