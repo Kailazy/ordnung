@@ -1,0 +1,9 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource>
+    <file>theme.qss</file>
+    <file>icons/chevron_down.svg</file>
+    <file>icons/check.svg</file>
+    <file>icons/folder.svg</file>
+  </qresource>
+</RCC>
