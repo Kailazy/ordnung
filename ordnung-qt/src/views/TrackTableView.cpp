@@ -17,14 +17,16 @@ GenreFilterProxy::GenreFilterProxy(QObject* parent)
 
 void GenreFilterProxy::setGenreFilter(const QString& genre)
 {
+    beginFilterChange();
     m_genreFilter = genre;
-    invalidateFilter();
+    endFilterChange();
 }
 
 void GenreFilterProxy::setSearchText(const QString& text)
 {
+    beginFilterChange();
     m_searchText = text.trimmed();
-    invalidateFilter();
+    endFilterChange();
 }
 
 bool GenreFilterProxy::filterAcceptsRow(int sourceRow, const QModelIndex& /*sourceParent*/) const

@@ -2,15 +2,16 @@
 setlocal
 
 :: ── Config ─────────────────────────────────────────────────────────────────
-:: Qt MSVC install path — update version number to match your install
-set QT_PATH=C:\Qt\6.7.2\msvc2022_64
+set QT_PATH=C:\Qt\6.10.2\mingw_64
+set MINGW_PATH=C:\Qt\Tools\mingw1310_64
+set NINJA_PATH=C:\Qt\Tools\Ninja
 
 :: Source: reads directly from WSL — no copy needed.
 :: If builds are slow, see README for the junction point alternative.
 set SOURCE=\\wsl$\Ubuntu\home\kailazy\projects\ordnung\ordnung-qt
 
 :: Windows-native build output (separate from the Linux build dir in WSL)
-set BUILD=C:\projects\ordnung-build
+set BUILD=C:\ordnung-build
 
 :: ───────────────────────────────────────────────────────────────────────────
 
@@ -21,11 +22,14 @@ if not exist "%QT_PATH%" (
     exit /b 1
 )
 
+set PATH=%MINGW_PATH%\bin;%NINJA_PATH%;%PATH%
+
 cmake -B "%BUILD%" -S "%SOURCE%" ^
-      -G "Visual Studio 17 2022" -A x64 ^
+      -G "Ninja" ^
+      -DCMAKE_BUILD_TYPE=Debug ^
       -DCMAKE_PREFIX_PATH="%QT_PATH%"
 
-cmake --build "%BUILD%" --config Debug -j %NUMBER_OF_PROCESSORS%
+cmake --build "%BUILD%" -j %NUMBER_OF_PROCESSORS%
 
 if errorlevel 1 (
     echo.
@@ -34,4 +38,6 @@ if errorlevel 1 (
     exit /b 1
 )
 
-"%BUILD%\Debug\Ordnung.exe"
+"%QT_PATH%\bin\windeployqt.exe" --no-translations "%BUILD%\Ordnung.exe"
+
+"%BUILD%\Ordnung.exe"

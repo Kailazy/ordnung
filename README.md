@@ -54,40 +54,37 @@ cd ordnung-qt
 
 ### Loop 2 — Windows native build (test real Windows behaviour)
 
-Reads source directly from WSL — no file copying needed. Output goes to a Windows-native path so MSVC doesn't have to write across the WSL boundary.
+Reads source directly from WSL — no file copying needed. Output goes to `C:\ordnung-build` so the compiler isn't writing across the WSL boundary.
 
-```cmd
-cd ordnung-qt
-dev.bat
-```
+**After editing code in WSL, just double-click `dev.bat` on your Desktop.** It will rebuild only what changed and launch the app.
 
 Run this when you want to verify Windows-specific behaviour: system fonts, file dialogs, DPI scaling, keyboard shortcuts. Not needed on every iteration — use Loop 1 for that.
 
+> The Desktop `dev.bat` is a launcher that calls the real script at `ordnung-qt/dev.bat` in the repo. Edit build settings there — the launcher picks up changes automatically.
+
 **One-time setup:**
 
-1. Install MSVC and CMake — paste into PowerShell (Admin):
-   ```powershell
-   winget install Microsoft.VisualStudio.2022.BuildTools --override "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --passive"
-   winget install Kitware.CMake
-   ```
+Install Qt 6 via the installer at [qt.io/download-qt-installer](https://qt.io/download-qt-installer) (free account). Under the Qt version tree, select:
+- Qt → Qt 6.x.x → **MinGW 64-bit**
+- Qt → Qt 6.x.x → **Qt SVG**
 
-2. Install Qt6 — download the installer at [qt.io/download-qt-installer](https://qt.io/download-qt-installer) (free account), select:
-   - Qt → Qt 6.x.x → **MSVC 2022 64-bit**
-   - Qt → Qt 6.x.x → **Qt SVG**
+Also tick **Developer and Designer Tools → MinGW 13.x.x 64-bit** so the compiler is included.
 
-3. Edit `ordnung-qt/dev.bat` — set `QT_PATH` to match your install:
-   ```bat
-   set QT_PATH=C:\Qt\6.7.2\msvc2022_64
-   ```
+`dev.bat` is pre-configured for the detected install (`C:\Qt\6.10.2\mingw_64`). If you reinstall Qt at a different version or path, update these three lines at the top of the file:
+```bat
+set QT_PATH=C:\Qt\6.10.2\mingw_64
+set MINGW_PATH=C:\Qt\Tools\mingw1310_64
+set NINJA_PATH=C:\Qt\Tools\Ninja
+```
 
 **If builds feel slow** (WSL filesystem reads over `\\wsl$\` can lag), create a Windows junction point so CMake sees a local path:
 ```powershell
 # Run once in PowerShell (Admin)
-New-Item -ItemType Junction -Path C:\projects\ordnung -Target \\wsl$\Ubuntu\home\kailazy\projects\ordnung
+New-Item -ItemType Junction -Path C:\ordnung -Target \\wsl$\Ubuntu\home\kailazy\projects\ordnung
 ```
 Then update `dev.bat`:
 ```bat
-set SOURCE=C:\projects\ordnung\ordnung-qt
+set SOURCE=C:\ordnung\ordnung-qt
 ```
 
 ### Loop 3 — Cross-platform (GitHub Actions)
@@ -171,11 +168,12 @@ cmake --build build-release -j$(nproc)
 ```
 
 ```cmd
-:: Windows
-cd ordnung-qt
-cmake -B build-release -G "Visual Studio 17 2022" -A x64 -DCMAKE_PREFIX_PATH="%QT_PATH%"
-cmake --build build-release --config Release
-windeployqt build-release\Release\Ordnung.exe
+:: Windows (run from a Command Prompt with MinGW on PATH, or use dev.bat as reference)
+set QT_PATH=C:\Qt\6.10.2\mingw_64
+set PATH=C:\Qt\Tools\mingw1310_64\bin;C:\Qt\Tools\Ninja;%PATH%
+cmake -B build-release -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="%QT_PATH%"
+cmake --build build-release -j %NUMBER_OF_PROCESSORS%
+%QT_PATH%\bin\windeployqt.exe build-release\Ordnung.exe
 ```
 
 ---
