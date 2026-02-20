@@ -56,7 +56,7 @@ void StatusDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
         const QString ext = index.data(Qt::DisplayRole).toString();
         const QColor textColor = Theme::Badge::forFormat(ext.toLower()).text;
 
-        QFont f(QLatin1String(Theme::Font::Mono));
+        QFont f{QLatin1String(Theme::Font::Mono)};
         f.setStyleHint(QFont::Monospace);
         f.setPointSize(Theme::Font::Meta);
         painter->setFont(f);
@@ -65,7 +65,7 @@ void StatusDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
 
     } else if (col == DownloadsModel::ColSize) {
         const QString text = index.data(Qt::DisplayRole).toString();
-        QFont f(QLatin1String(Theme::Font::Mono));
+        QFont f{QLatin1String(Theme::Font::Mono)};
         f.setStyleHint(QFont::Monospace);
         f.setPointSize(Theme::Font::Meta);
         painter->setFont(f);
@@ -83,7 +83,7 @@ void StatusDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option
         const Theme::Badge::Colors c = Theme::Badge::forStatus(status);
         const QString label = status.toUpper();
 
-        QFont badgeFont(QLatin1String(Theme::Font::Mono));
+        QFont badgeFont{QLatin1String(Theme::Font::Mono)};
         badgeFont.setStyleHint(QFont::Monospace);
         badgeFont.setPointSize(Theme::Font::Badge);
         badgeFont.setWeight(QFont::DemiBold);

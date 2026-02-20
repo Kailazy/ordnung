@@ -83,7 +83,7 @@ void paintCell(QPainter* painter,
         if (t.is_analyzing) {
             const qint64 frame = QDateTime::currentMSecsSinceEpoch() / 120;
             const int startAngle = static_cast<int>((frame % 30) * 12) * 16;  // rotates every 3.6s
-            QPen arcPen(QColor(Theme::Color::Accent));
+            QPen arcPen{QColor(Theme::Color::Accent)};
             arcPen.setWidth(2);
             arcPen.setCapStyle(Qt::RoundCap);
             painter->setPen(arcPen);
@@ -132,7 +132,7 @@ void paintCell(QPainter* painter,
         const bool rightAlign = (role == LibraryTableColumn::Bpm || role == LibraryTableColumn::Time);
         const QRect r = cellRect.adjusted(Theme::Layout::TrackCellPadH, 0,
                                           -Theme::Layout::TrackCellPadH, 0);
-        QFont f(QLatin1String(Theme::Font::Mono));
+        QFont f{QLatin1String(Theme::Font::Mono)};
         f.setStyleHint(QFont::Monospace);
         f.setPointSize(Theme::Font::Meta);
         painter->setFont(f);
@@ -144,7 +144,7 @@ void paintCell(QPainter* painter,
         if (format.isEmpty()) {
             const QRect r = cellRect.adjusted(Theme::Layout::TrackCellPadH, 0,
                                              -Theme::Layout::TrackCellPadH, 0);
-            QFont f(QLatin1String(Theme::Font::Mono));
+            QFont f{QLatin1String(Theme::Font::Mono)};
             f.setPointSize(Theme::Font::Meta);
             painter->setFont(f);
             painter->setPen(QColor(Theme::Color::Text3));
@@ -152,7 +152,7 @@ void paintCell(QPainter* painter,
         } else {
             const Theme::Badge::Colors colors = Theme::Badge::forFormat(format);
             const QString formatUpper = format.toUpper();
-            QFont badgeFont(QLatin1String(Theme::Font::Mono));
+            QFont badgeFont{QLatin1String(Theme::Font::Mono)};
             badgeFont.setStyleHint(QFont::Monospace);
             badgeFont.setPointSize(Theme::Font::Badge);
             badgeFont.setWeight(QFont::DemiBold);
@@ -189,7 +189,7 @@ void paintCell(QPainter* painter,
             : QStringLiteral("--");
         const QRect r = cellRect.adjusted(Theme::Layout::TrackCellPadH, 0,
                                           -Theme::Layout::TrackCellPadH, 0);
-        QFont f(QLatin1String(Theme::Font::Mono));
+        QFont f{QLatin1String(Theme::Font::Mono)};
         f.setStyleHint(QFont::Monospace);
         f.setPointSize(Theme::Font::Meta);
         painter->setFont(f);
