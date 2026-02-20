@@ -1,9 +1,0 @@
-/home/kailazy/projects/ordnung/ordnung-qt/build/CMakeFiles/Ordnung.dir
-/home/kailazy/projects/ordnung/ordnung-qt/build/CMakeFiles/edit_cache.dir
-/home/kailazy/projects/ordnung/ordnung-qt/build/CMakeFiles/rebuild_cache.dir
-/home/kailazy/projects/ordnung/ordnung-qt/build/CMakeFiles/list_install_components.dir
-/home/kailazy/projects/ordnung/ordnung-qt/build/CMakeFiles/install.dir
-/home/kailazy/projects/ordnung/ordnung-qt/build/CMakeFiles/install/local.dir
-/home/kailazy/projects/ordnung/ordnung-qt/build/CMakeFiles/install/strip.dir
-/home/kailazy/projects/ordnung/ordnung-qt/build/CMakeFiles/Ordnung_autogen_timestamp_deps.dir
-/home/kailazy/projects/ordnung/ordnung-qt/build/CMakeFiles/Ordnung_autogen.dir
