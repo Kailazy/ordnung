@@ -2,6 +2,7 @@
 
 #include <QTableView>
 #include <QSortFilterProxyModel>
+#include <QVector>
 
 class TrackModel;
 class FormatDelegate;
@@ -42,9 +43,13 @@ public:
                             QWidget* parent = nullptr);
 
     GenreFilterProxy* proxy() const { return m_proxy; }
+    TrackModel*       trackModel() const { return m_trackModel; }
 
     void setSearchText(const QString& text);
     void setGenreFilter(const QString& genre);
+
+    int  hoveredRow()   const { return m_hoveredRow; }
+    bool hoveredThumb() const { return m_hoveredThumb; }
 
     // Expand/collapse the detail panel for the clicked row.
     // Returns the track data QVariantMap for the expanded row, or empty if collapsed.
@@ -57,17 +62,32 @@ signals:
     void trackExpanded(const QVariantMap& trackData);
     void trackCollapsed();
     void formatChangeRequested(const QModelIndex& sourceIndex, const QString& newFormat);
+    void playRequested(const QString& filePath, const QString& title, const QString& artist);
 
 protected:
     void mousePressEvent(QMouseEvent* event) override;
+    void mouseDoubleClickEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
+    void keyPressEvent(QKeyEvent* event) override;
     void leaveEvent(QEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
 
 private:
-    TrackModel*      m_trackModel;
+    void applyColumnVisibilityAndWidths();
+    void onSectionResized(int logicalIndex, int oldSize, int newSize);
+    static QRect thumbnailRect(const QRect& cellRect);
+    void tryPlayFromThumbnail(const QModelIndex& proxyIdx, const QPoint& pos);
+
+    QVector<int> m_columnWeights;
+    QVector<int> m_columnMinWidths;
+    // Stored column widths: on window resize only the last column changes (takes remainder); dragging a divider only moves that boundary (Rekordbox-style).
+    QVector<int> m_columnWidths;
+
+    TrackModel*       m_trackModel;
     GenreFilterProxy* m_proxy;
-    FormatDelegate*  m_delegate;
-    QUndoStack*      m_undoStack;
-    int              m_expandedProxyRow = -1;
-    int              m_hoveredRow       = -1;
+    FormatDelegate*   m_delegate;
+    QUndoStack*       m_undoStack;
+    long long         m_expandedTrackId = -1;
+    int               m_hoveredRow      = -1;
+    bool              m_hoveredThumb    = false;
 };

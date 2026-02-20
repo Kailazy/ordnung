@@ -2,6 +2,7 @@
 
 #include <QFont>
 #include <QFile>
+#include <QFontDatabase>
 
 Application::Application(int& argc, char** argv)
     : QApplication(argc, argv)
@@ -22,8 +23,10 @@ Application::Application(int& argc, char** argv)
 
 void Application::setupFont()
 {
-    QFont f = font();
-    f.setPointSize(17);
+    QFontDatabase::addApplicationFont(":/fonts/Figtree-Variable.ttf");
+
+    QFont f("Figtree", 14);
+    f.setWeight(QFont::Normal);       // 400
     f.setHintingPreference(QFont::PreferFullHinting);
     setFont(f);
 }

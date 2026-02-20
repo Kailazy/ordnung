@@ -1,6 +1,6 @@
 # Eyebags Terminal
 
-A desktop DJ utility for managing music playlists and converting audio files to AIFF. Built with **Qt 6 + C++** — single native binary, no Electron, no web runtime.
+A desktop DJ library manager for managing tracks, playlists, cue points, and audio analysis. Built with **Qt 6 + C++17** — single native binary, no Electron, no web runtime.
 
 ---
 
@@ -9,16 +9,31 @@ A desktop DJ utility for managing music playlists and converting audio files to 
 | Layer | Technology |
 |---|---|
 | UI | Qt 6 Widgets (C++) |
-| Database | SQLite via QSqlDatabase |
-| Conversion | FFmpeg subprocess via QProcess |
-| Folder watching | QFileSystemWatcher |
+| Database | SQLite via `QSqlDatabase` |
+| Audio conversion | FFmpeg subprocess via `QProcess` |
+| Library scanning | `LibraryScanner` (recursive, watcher-based) |
+| Audio analysis | Essentia (BPM, key, mood/style) + ffprobe/aubio fallback |
+| Genre/mood tags | Discogs-Effnet ONNX model (optional) |
+| Folder watching | `QFileSystemWatcher` |
 | Build | CMake 3.21+ |
+
+---
+
+## Building
+
+```bash
+# From repo root (WSL or Linux)
+cmake -B ordnung-qt/build -S ordnung-qt -DCMAKE_BUILD_TYPE=Release
+cmake --build ordnung-qt/build --parallel
+```
+
+Qt 6.7+ must be on `CMAKE_PREFIX_PATH`. The build is optional-dependency-aware: Essentia and ONNX Runtime are used if found in `third_party/`, otherwise the app compiles and runs with the ffprobe/aubio analysis fallback.
 
 ---
 
 ## Dev workflow
 
-There are three loops. They do not interfere — they share the same source in WSL and produce separate build outputs.
+Three loops. They share the same source and don't interfere.
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -27,10 +42,9 @@ There are three loops. They do not interfere — they share the same source in W
 └──────────┬──────────────────┬───────────────────────┘
            │                  │
            ▼                  ▼
-  ./dev.sh               dev.bat (Windows)
+  cmake --build          dev.bat (Windows)
   Linux binary           Windows .exe
   WSLg window            Native Win32 window
-  build/                 C:\projects\ordnung-build\
   (fast loop)            (test real Windows behaviour)
            │                  │
            └────────┬─────────┘
@@ -42,139 +56,81 @@ There are three loops. They do not interfere — they share the same source in W
 
 ### Loop 1 — Daily iteration (WSLg, fastest)
 
-WSLg runs the Linux binary as a native-looking window on your Windows desktop. One command, instant feedback.
+WSLg runs the Linux binary as a native-looking window on your Windows desktop.
 
 ```bash
-# In WSL terminal
-cd ordnung-qt
-./dev.sh
+cmake --build ordnung-qt/build --parallel && ./ordnung-qt/build/Ordnung
 ```
 
-**Requires WSLg** (Windows 11, included by default). Verify with `wsl --version` in PowerShell.
+Requires WSLg (Windows 11, included by default).
 
-### Loop 2 — Windows native build (test real Windows behaviour)
+### Loop 2 — Windows native build
 
-Reads source directly from WSL — no file copying needed. Output goes to `C:\ordnung-build` so the compiler isn't writing across the WSL boundary.
+Reads source from `\\wsl$\`. Output goes to `C:\ordnung-build` to avoid writing across the WSL boundary.
 
-**After editing code in WSL, just double-click `dev.bat` on your Desktop.** It will rebuild only what changed and launch the app.
-
-Run this when you want to verify Windows-specific behaviour: system fonts, file dialogs, DPI scaling, keyboard shortcuts. Not needed on every iteration — use Loop 1 for that.
-
-> The Desktop `dev.bat` is a launcher that calls the real script at `ordnung-qt/dev.bat` in the repo. Edit build settings there — the launcher picks up changes automatically.
-
-**One-time setup:**
-
-Install Qt 6 via the installer at [qt.io/download-qt-installer](https://qt.io/download-qt-installer) (free account). Under the Qt version tree, select:
+**One-time setup:** Install Qt 6 via [qt.io/download-qt-installer](https://qt.io/download-qt-installer). Select:
 - Qt → Qt 6.x.x → **MinGW 64-bit**
-- Qt → Qt 6.x.x → **Qt SVG**
+- Qt → Qt 6.x.x → **Qt SVG**, **Qt Multimedia**
+- Developer and Designer Tools → **MinGW 13.x.x 64-bit**
 
-Also tick **Developer and Designer Tools → MinGW 13.x.x 64-bit** so the compiler is included.
-
-`dev.bat` is pre-configured for the detected install (`C:\Qt\6.10.2\mingw_64`). If you reinstall Qt at a different version or path, update these three lines at the top of the file:
-```bat
-set QT_PATH=C:\Qt\6.10.2\mingw_64
-set MINGW_PATH=C:\Qt\Tools\mingw1310_64
-set NINJA_PATH=C:\Qt\Tools\Ninja
-```
-
-**If builds feel slow** (WSL filesystem reads over `\\wsl$\` can lag), create a Windows junction point so CMake sees a local path:
-```powershell
-# Run once in PowerShell (Admin)
-New-Item -ItemType Junction -Path C:\ordnung -Target \\wsl$\Ubuntu\home\kailazy\projects\ordnung
-```
-Then update `dev.bat`:
-```bat
-set SOURCE=C:\ordnung\ordnung-qt
-```
-
-### Loop 3 — Cross-platform (GitHub Actions)
-
-Push to `master` → CI builds Linux, Windows, and macOS automatically. You do not need a Mac to produce a Mac build.
-
-Download artifacts from the **Actions** tab in GitHub after a run completes.
-
----
-
-## GitHub Actions setup
-
-Add `.github/workflows/build.yml` to the repo:
-
-```yaml
-name: Build
-
-on:
-  push:
-    branches: [master]
-  pull_request:
-
-jobs:
-  build-linux:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: jurplel/install-qt-action@v3
-        with:
-          version: '6.7.0'
-          modules: 'qtsvg'
-      - run: cmake -B build -DCMAKE_BUILD_TYPE=Release
-      - run: cmake --build build -j$(nproc)
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Ordnung-linux
-          path: build/Ordnung
-
-  build-windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: jurplel/install-qt-action@v3
-        with:
-          version: '6.7.0'
-          modules: 'qtsvg'
-      - run: cmake -B build -G "Visual Studio 17 2022" -A x64
-      - run: cmake --build build --config Release
-      - run: windeployqt build\Release\Ordnung.exe
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Ordnung-windows
-          path: build\Release\
-
-  build-macos:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: jurplel/install-qt-action@v3
-        with:
-          version: '6.7.0'
-          modules: 'qtsvg'
-      - run: cmake -B build -DCMAKE_BUILD_TYPE=Release
-      - run: cmake --build build -j$(nproc)
-      - run: macdeployqt build/Ordnung.app -dmg
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Ordnung-mac
-          path: build/Ordnung.dmg
-```
-
----
-
-## Release build (local)
-
+Then build from an MSYS2 MinGW64 shell:
 ```bash
-# Linux
-cd ordnung-qt
-cmake -B build-release -DCMAKE_BUILD_TYPE=Release
-cmake --build build-release -j$(nproc)
+cmake -B build -S ordnung-qt -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
 ```
 
-```cmd
-:: Windows (run from a Command Prompt with MinGW on PATH, or use dev.bat as reference)
-set QT_PATH=C:\Qt\6.10.2\mingw_64
-set PATH=C:\Qt\Tools\mingw1310_64\bin;C:\Qt\Tools\Ninja;%PATH%
-cmake -B build-release -G "Ninja" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="%QT_PATH%"
-cmake --build build-release -j %NUMBER_OF_PROCESSORS%
-%QT_PATH%\bin\windeployqt.exe build-release\Ordnung.exe
+### Loop 3 — Cross-platform CI
+
+Push to `master` → GitHub Actions builds Linux, Windows (MSYS2/MinGW64), and macOS automatically. Download artifacts from the **Actions** tab.
+
+---
+
+## Audio Analysis
+
+Eyebags Terminal supports two analysis modes:
+
+### Basic (always available)
+- BPM detection via **aubio** (if installed) or ffprobe metadata
+- Key from embedded file tags
+
+### Deep analysis (optional — requires Essentia)
+- Accurate BPM via `BeatTrackerMultiFeature`
+- Musical key via `KeyExtractor`
+- Mood, style, danceability, vocal probability via **Discogs-Effnet** ONNX model
+
+### Enabling deep analysis
+
+Deep analysis requires pre-built Essentia binaries in `third_party/`. These are not committed to the repo by default (they're large). Build them on the target platform:
+
+**Linux (from WSL):**
+```bash
+bash scripts/build-essentia-linux.sh
 ```
+
+**macOS:**
+```bash
+bash scripts/build-essentia-macos.sh
+```
+
+After building, commit `third_party/essentia/<platform>/` to Git LFS:
+```bash
+git add third_party/essentia/
+git commit -m "chore: add bundled Essentia <platform>"
+```
+
+**Windows:** Essentia's waf build system does not support MinGW. Windows ships with the ffprobe/aubio fallback — BPM detection still works.
+
+### Discogs-Effnet genre/mood model (optional)
+
+Download the model file from [Essentia models](https://essentia.upf.edu/models/) and place it at:
+
+| Platform | Path |
+|---|---|
+| Linux | `~/.local/share/eyebags-terminal/models/discogs-effnet-bs64-1.pb.onnx` |
+| Windows | `%APPDATA%\eyebags-terminal\models\discogs-effnet-bs64-1.pb.onnx` |
+| macOS | `~/Library/Application Support/eyebags-terminal/models/discogs-effnet-bs64-1.pb.onnx` |
+
+Run `bash scripts/fetch-onnxruntime.sh` to download the ONNX Runtime runtime alongside Essentia.
 
 ---
 
@@ -189,3 +145,14 @@ The SQLite database is created automatically on first run:
 | macOS | `~/Library/Application Support/eyebags-terminal/eyebags.db` |
 
 FFmpeg must be on `PATH` at runtime for audio conversion.
+
+---
+
+## Git LFS
+
+Binary assets in `third_party/` (Essentia and ONNX Runtime `.so`/`.dylib`/`.dll`/`.a` files) are tracked with Git LFS. Install LFS before cloning if you need them:
+
+```bash
+git lfs install
+git clone --recurse-submodules <repo-url>
+```

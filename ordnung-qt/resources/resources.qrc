@@ -5,5 +5,7 @@
     <file>icons/chevron_down.svg</file>
     <file>icons/check.svg</file>
     <file>icons/folder.svg</file>
+    <file>icons/radio_checked.svg</file>
+    <file>fonts/Figtree-Variable.ttf</file>
   </qresource>
 </RCC>

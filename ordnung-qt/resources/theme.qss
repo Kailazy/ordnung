@@ -1,57 +1,42 @@
 /* =============================================================================
    EYEBAGS TERMINAL — Qt Stylesheet
-   Version: 1.0
-   Target: Qt 6.x, QSS engine
+   Aesthetic: Ableton-inspired, machinelike. Sleek, functional, precise.
    =============================================================================
 
-   DESIGN TOKEN REFERENCE
+   DESIGN TOKEN REFERENCE (Ableton-inspired palette)
    ─────────────────────────────────────────────────────────────────────────────
-   Background surfaces (darkest to lightest):
-     #080808  bg       — root/window background
-     #0e0e0e  bg1      — sidebar, playlist panel, secondary surfaces
-     #151515  bg2      — cards, inputs, interactive surface base
-     #1c1c1c  bg3      — hover surface offset, elevated state
+   Background surfaces (warmer charcoal, not pure black):
+     #1a1a1a  bg       — root/window background
+     #222222  bg1      — sidebar, playlist panel, secondary surfaces
+     #2a2a2a  bg2      — cards, inputs, interactive surface base
+     #353535  bg3      — hover surface offset, elevated state
 
-   Borders:
-     #1e1e1e  border   — structural dividers (barely visible — presence only)
-     #444444           — hover/active border elevation
+   Borders (precise, structural):
+     #2d2d2d  border   — structural dividers
+     #505050           — hover/active border elevation
 
    Text hierarchy:
-     #d0d0d0  text     — primary, readable
-     #777777  text2    — secondary, metadata
-     #444444  text3    — muted, labels, inactive
+     #d8d8d8  text     — primary, readable
+     #808080  text2    — secondary, metadata
+     #5a5a5a  text3    — muted, labels, inactive
 
-   Accent:
-     #4fc3f7  accent   — single interactive affordance color (ice blue)
-     #0d3b4f  accentBg — accent wash for selected/active backgrounds
+   Accent (Ableton orange):
+     #ff764d  accent   — primary interactive affordance
+     #4a2a22  accentBg — accent wash for selected/active backgrounds
 
    Semantic:
-     #b08d57  gold     — star ratings
-     #81c784  green    — AIFF (target format), success states
-     #e57373  red      — danger, error, failed states
-     #ffb74d  amber    — warnings, pending states
+     #7cb87e  green    — AIFF (target format), success
+     #e07070  red      — danger, error, failed
+     #e8a84a  amber    — warnings, pending
 
-   Format badge colors — each format has a dedicated text/bg pair to encode
-   file identity at a glance. AIFF is green because it is the target format.
-   MP3 is intentionally dull (near-invisible) because it is the commodity.
-   ─────────────────────────────────────────────────────────────────────────────
+   Machinelike: sharp corners (0–1px radius), monospace-heavy, grid precision.
 
-   TYPOGRAPHY TOKEN REFERENCE
-   ─────────────────────────────────────────────────────────────────────────────
-   Proportional (UI labels, names, metadata):
-     Segoe UI on Windows / SF Pro on macOS — resolved by Qt automatically via
-     QApplication::setFont(). Never hardcode a family name in this file for
-     proportional text; let the platform deliver its native sans-serif.
-
-   Monospaced (BPM, key, duration, activity log, format badges):
-     "Consolas", "Courier New", monospace
-     — used for all data that must align in columns or carry terminal identity.
-
-   Point sizes (do NOT use px — point sizes scale correctly across DPI):
-     20pt  — logo wordmark
-     13pt  — section headers uppercase, muted labels, mono data, activity log
-     15pt  — secondary metadata, small buttons
-     17pt  — primary body text (track titles, playlist names)
+   PADDING TOKENS (8px grid — must match Theme.h Layout):
+     PadXs=4   PadSm=8   PadMd=12   PadLg=16   PadXl=24   Pad2Xl=32
+     PanelPad=24  ContentPadH=24  ContentPadV=12  CellPadH=12
+     InputPadV=8  InputPadH=12  ButtonPadV=8  ButtonPadH=16
+     CardPadH=32  CardPadV=24  CardPadVB=16
+     GapXs=4  GapSm=8  GapMd=12  GapLg=16
    ─────────────────────────────────────────────────────────────────────────────
 */
 
@@ -60,26 +45,28 @@
    ============================================================================= */
 
 QMainWindow {
-    background-color: #080808;
+    background-color: #1a1a1a;
 }
 
 QWidget {
-    background-color: #080808;
-    color: #d0d0d0;
-    font-size: 17pt;
+    background-color: #1a1a1a;
+    color: #d8d8d8;
+    font-family: "Figtree", "Segoe UI", sans-serif;
+    font-size: 14pt;
+    font-weight: 400;
     border: none;
     outline: none;
 }
 
 /* =============================================================================
-   SIDEBAR NAVIGATION
+   SIDEBAR NAVIGATION — machinelike, sharp
    ============================================================================= */
 
 QWidget#sidebar {
-    background-color: #0e0e0e;
-    border-right: 1px solid #1e1e1e;
-    min-width: 220px;
-    max-width: 220px;
+    background-color: #222222;
+    border-right: 1px solid #2d2d2d;
+    min-width: 224px;
+    max-width: 224px;
 }
 
 QWidget#sidebarNav {
@@ -88,78 +75,80 @@ QWidget#sidebarNav {
 
 /* Logo label — set objectName "logoLabel" in code */
 QLabel#logoLabel {
-    font-size: 20pt;
+    font-size: 18pt;
     font-weight: 300;
-    letter-spacing: 3px;
-    color: #ffffff;
+    letter-spacing: 2px;
+    color: #f0f0f0;
     background-color: transparent;
-    padding: 0px 23px 32px 23px;
-    border-bottom: 1px solid #1e1e1e;
+    padding: 0px 24px 24px 24px;
+    border-bottom: 1px solid #2d2d2d;
 }
 
 /* Version footer label — set objectName "versionLabel" in code */
 QLabel#versionLabel {
-    font-size: 13pt;
-    color: #444444;
+    font-size: 11pt;
+    font-family: "Consolas", "Courier New", monospace;
+    color: #5a5a5a;
     letter-spacing: 1px;
     background-color: transparent;
-    padding: 16px 23px;
-    border-top: 1px solid #1e1e1e;
+    padding: 16px 24px;
+    border-top: 1px solid #2d2d2d;
 }
 
 /* Navigation buttons — idle state */
 QPushButton#navBtn {
     background-color: transparent;
-    color: #444444;
-    font-size: 15pt;
-    letter-spacing: 1px;
+    color: #5a5a5a;
+    font-size: 12pt;
+    font-family: "Consolas", "Courier New", monospace;
+    letter-spacing: 1.5px;
     text-align: left;
-    padding: 15px 23px;
+    padding: 12px 24px;
     border: none;
-    border-left: 2px solid transparent;
+    border-left: 3px solid transparent;
     border-radius: 0px;
 }
 
 QPushButton#navBtn:hover {
-    background-color: #151515;
-    color: #777777;
-    border-left: 2px solid transparent;
+    background-color: #2a2a2a;
+    color: #808080;
+    border-left: 3px solid transparent;
 }
 
 QPushButton#navBtn:pressed {
-    background-color: #151515;
-    color: #d0d0d0;
+    background-color: #2a2a2a;
+    color: #d8d8d8;
 }
 
 /* Active nav button — use setProperty("active", true) and repolish() in C++ */
 QPushButton#navBtn[active="true"] {
-    background-color: #151515;
-    color: #d0d0d0;
-    border-left: 2px solid #4fc3f7;
+    background-color: #2a2a2a;
+    color: #ff764d;
+    border-left: 3px solid #ff764d;
 }
 
 QPushButton#navBtn[active="true"]:hover {
-    background-color: #1c1c1c;
-    color: #d0d0d0;
-    border-left: 2px solid #4fc3f7;
+    background-color: #353535;
+    color: #ff764d;
+    border-left: 3px solid #ff764d;
 }
 
 /* =============================================================================
-   SPLITTER
+   SPLITTER — 1px handle, machinelike
    ============================================================================= */
 
 QSplitter {
-    background-color: #080808;
+    background-color: #1a1a1a;
 }
 
 QSplitter::handle {
-    background-color: #1e1e1e;
+    background-color: #2d2d2d;
     width: 1px;
     height: 1px;
 }
 
 QSplitter::handle:hover {
-    background-color: #444444;
+    background-color: #505050;
 }
 
 /* =============================================================================
@@ -167,39 +156,41 @@ QSplitter::handle:hover {
    ============================================================================= */
 
 QWidget#playlistPanel {
-    background-color: #0e0e0e;
-    border-right: 1px solid #1e1e1e;
+    background-color: #222222;
+    border-right: 1px solid #2d2d2d;
     min-width: 320px;
     max-width: 320px;
 }
 
 QWidget#playlistPanelHead {
-    background-color: #0e0e0e;
-    border-bottom: 1px solid #1e1e1e;
-    padding: 23px;
+    background-color: #222222;
+    border-bottom: 1px solid #2d2d2d;
+    padding: 24px;
 }
 
 QLabel#playlistsHeader {
-    font-size: 13pt;
-    color: #777777;
-    letter-spacing: 1px;
+    font-size: 11pt;
+    font-family: "Consolas", "Courier New", monospace;
+    color: #5a5a5a;
+    letter-spacing: 2px;
     background-color: transparent;
 }
 
 /* Import drop zone — use objectName "importZone" */
 QLabel#importZone {
-    font-size: 15pt;
-    color: #444444;
+    font-size: 12pt;
+    font-family: "Consolas", "Courier New", monospace;
+    color: #5a5a5a;
     background-color: transparent;
-    border: 1px dashed #1e1e1e;
-    border-radius: 5px;
-    padding: 18px;
+    border: 1px dashed #2d2d2d;
+    border-radius: 2px;
+    padding: 16px;
     qproperty-alignment: AlignCenter;
 }
 
 QLabel#importZone:hover {
-    border-color: #444444;
-    color: #777777;
+    border-color: #505050;
+    color: #808080;
 }
 
 /* =============================================================================
@@ -207,281 +198,299 @@ QLabel#importZone:hover {
    ============================================================================= */
 
 QListView {
-    background-color: #0e0e0e;
+    background-color: #222222;
     border: none;
     outline: none;
-    padding: 7px 0px;
+    padding: 8px 0px;
 }
 
 QListView::item {
     background-color: transparent;
-    color: #d0d0d0;
-    padding: 14px 23px;
-    border-left: 2px solid transparent;
-    min-height: 52px;
+    color: #d8d8d8;
+    padding: 12px 24px;
+    border-left: 3px solid transparent;
+    min-height: 56px;
 }
 
 QListView::item:hover {
-    background-color: #151515;
+    background-color: #2a2a2a;
 }
 
 QListView::item:selected {
-    background-color: #151515;
-    color: #d0d0d0;
-    border-left: 2px solid #4fc3f7;
+    background-color: #2a2a2a;
+    color: #d8d8d8;
+    border-left: 3px solid #ff764d;
 }
 
 QListView::item:selected:hover {
-    background-color: #1c1c1c;
+    background-color: #353535;
 }
 
 /* =============================================================================
-   TABLE VIEWS (track list, download list)
+   TABLE VIEWS (track list, download list) — grid precision
    ============================================================================= */
 
 QTableView {
-    background-color: #080808;
-    alternate-background-color: #080808;
-    color: #d0d0d0;
+    background-color: #1a1a1a;
+    alternate-background-color: #1a1a1a;
+    color: #d8d8d8;
     border: none;
     outline: none;
-    gridline-color: #0f0f0f;
-    selection-background-color: #0d3b4f;
-    selection-color: #d0d0d0;
+    gridline-color: #252525;
+    selection-background-color: #4a2a22;
+    selection-color: #d8d8d8;
 }
 
 QTableView::item {
-    padding: 0px 14px;
-    border-bottom: 1px solid #0f0f0f;
-    min-height: 54px;
+    padding: 0px;
+    min-height: 48px;
+    /* separator drawn by FormatDelegate::paint() — QSS border-bottom
+       is ignored for custom QPainter delegates */
 }
 
 QTableView::item:hover {
-    background-color: #0d0d0d;
+    background-color: #252525;
 }
 
 QTableView::item:selected {
-    background-color: #0d3b4f;
-    color: #d0d0d0;
+    background-color: #4a2a22;
+    color: #d8d8d8;
 }
 
 QTableView::item:selected:hover {
-    background-color: #0f4060;
+    background-color: #5a3228;
 }
 
-/* Column header */
+/* Column header — monospace, machinelike */
 QHeaderView {
-    background-color: #080808;
+    background-color: #1a1a1a;
     border: none;
-    border-bottom: 1px solid #1e1e1e;
+    border-bottom: 1px solid #2d2d2d;
 }
 
 QHeaderView::section {
-    background-color: #080808;
-    color: #444444;
-    font-size: 13pt;
-    letter-spacing: 1px;
+    background-color: #1a1a1a;
+    color: #5a5a5a;
+    font-size: 10pt;
+    font-family: "Consolas", "Courier New", monospace;
+    font-weight: 400;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
-    padding: 8px 14px;
+    padding: 0px 12px;
     border: none;
-    border-right: 1px solid #1e1e1e;
-    border-bottom: 1px solid #1e1e1e;
+    border-right: 1px solid #2d2d2d;
+    border-bottom: 1px solid #2d2d2d;
 }
 
 QHeaderView::section:hover {
-    background-color: #0e0e0e;
-    color: #777777;
+    background-color: #222222;
+    color: #808080;
 }
 
 QHeaderView::section:last {
     border-right: none;
 }
 
+QHeaderView::down-arrow,
+QHeaderView::up-arrow {
+    image: url(:/icons/chevron_down.svg);
+    width: 10px;
+    height: 6px;
+    subcontrol-position: right center;
+    subcontrol-origin: content;
+    margin-right: 12px;
+}
+
 /* =============================================================================
-   TOOLBAR / SEARCH INPUT
+   TOOLBAR / SEARCH INPUT — machinelike
    ============================================================================= */
 
 QWidget#toolbar {
-    background-color: #080808;
-    border-bottom: 1px solid #1e1e1e;
-    padding: 18px 28px;
-    min-height: 64px;
-    max-height: 64px;
+    background-color: #1a1a1a;
+    border-bottom: 1px solid #2d2d2d;
+    padding: 12px 24px;
+    min-height: 56px;
+    max-height: 56px;
 }
 
 QLineEdit#searchInput {
-    background-color: #151515;
-    color: #d0d0d0;
-    font-size: 17pt;
-    border: 1px solid #1e1e1e;
-    border-radius: 5px;
-    padding: 10px 16px;
-    selection-background-color: #0d3b4f;
-    selection-color: #d0d0d0;
+    background-color: #2a2a2a;
+    color: #d8d8d8;
+    font-size: 14pt;
+    font-family: "Figtree", "Segoe UI", sans-serif;
+    font-weight: 400;
+    border: 1px solid #2d2d2d;
+    border-radius: 2px;
+    padding: 8px 16px;
+    selection-background-color: #4a2a22;
+    selection-color: #d8d8d8;
 }
 
 QLineEdit#searchInput:hover {
-    border-color: #444444;
+    border-color: #505050;
 }
 
 QLineEdit#searchInput:focus {
-    border-color: #444444;
-    background-color: #151515;
+    border-color: #ff764d;
+    background-color: #2a2a2a;
 }
 
 QLineEdit#searchInput::placeholder {
-    color: #444444;
+    color: #5a5a5a;
 }
 
 /* =============================================================================
-   GENRE BAR (horizontal tag strip)
+   GENRE BAR (horizontal tag strip) — sharp tags
    ============================================================================= */
 
 QWidget#genreBar {
-    background-color: #080808;
-    border-bottom: 1px solid #1e1e1e;
-    padding: 12px 28px;
-    min-height: 48px;
-    max-height: 48px;
+    background-color: #1a1a1a;
+    border-bottom: 1px solid #2d2d2d;
+    padding: 8px 24px;
+    min-height: 40px;
+    max-height: 40px;
 }
 
 /* Genre tag buttons — use QPushButton with objectName "genreTag" */
 QPushButton#genreTag {
     background-color: transparent;
-    color: #444444;
-    font-size: 13pt;
-    padding: 6px 12px;
-    border: 1px solid #1e1e1e;
-    border-radius: 3px;
+    color: #5a5a5a;
+    font-size: 11pt;
+    font-family: "Consolas", "Courier New", monospace;
+    padding: 8px 12px;
+    border: 1px solid #2d2d2d;
+    border-radius: 0px;
 }
 
 QPushButton#genreTag:hover {
-    background-color: #1c1c1c;
-    color: #d0d0d0;
-    border-color: #444444;
+    background-color: #2a2a2a;
+    color: #d8d8d8;
+    border-color: #505050;
 }
 
 QPushButton#genreTag:pressed {
-    background-color: #1c1c1c;
-    color: #d0d0d0;
+    background-color: #2a2a2a;
+    color: #d8d8d8;
 }
 
 QPushButton#genreTag[active="true"] {
-    background-color: #1c1c1c;
-    color: #d0d0d0;
-    border-color: #444444;
+    background-color: #2a2a2a;
+    color: #ff764d;
+    border-color: #ff764d;
 }
 
 QPushButton#genreTag[active="true"]:hover {
-    background-color: #222222;
-    border-color: #666666;
+    background-color: #353535;
+    border-color: #ff764d;
 }
 
 /* =============================================================================
-   GENERIC BUTTONS
+   GENERIC BUTTONS — sharp, machinelike
    ============================================================================= */
 
 QPushButton {
-    background-color: #151515;
-    color: #777777;
-    font-size: 15pt;
-    padding: 9px 18px;
-    border: 1px solid #1e1e1e;
-    border-radius: 5px;
+    background-color: #2a2a2a;
+    color: #808080;
+    font-size: 12pt;
+    font-family: "Figtree", "Segoe UI", sans-serif;
+    font-weight: 500;
+    padding: 8px 16px;
+    border: 1px solid #2d2d2d;
+    border-radius: 0px;
 }
 
 QPushButton:hover {
-    background-color: #1c1c1c;
-    color: #ffffff;
-    border-color: #444444;
+    background-color: #353535;
+    color: #f0f0f0;
+    border-color: #505050;
 }
 
 QPushButton:pressed {
-    background-color: #151515;
-    color: #d0d0d0;
-    border-color: #555555;
+    background-color: #2a2a2a;
+    color: #d8d8d8;
+    border-color: #505050;
 }
 
 QPushButton:disabled {
-    background-color: #0e0e0e;
-    color: #333333;
-    border-color: #1a1a1a;
+    background-color: #222222;
+    color: #404040;
+    border-color: #252525;
 }
 
-/* Accent button — setProperty("class", "accent") */
+/* Accent button — Ableton orange */
 QPushButton.accent,
 QPushButton[btnStyle="accent"] {
-    background-color: #151515;
-    color: #4fc3f7;
-    border-color: #0d3b4f;
+    background-color: #2a2a2a;
+    color: #ff764d;
+    border-color: #4a2a22;
 }
 
 QPushButton.accent:hover,
 QPushButton[btnStyle="accent"]:hover {
-    background-color: #0d3b4f;
-    color: #4fc3f7;
-    border-color: #1a5c7a;
+    background-color: #4a2a22;
+    color: #ff764d;
+    border-color: #5a3228;
 }
 
 QPushButton.accent:pressed,
 QPushButton[btnStyle="accent"]:pressed {
-    background-color: #0a2e3d;
-    color: #4fc3f7;
+    background-color: #3a221a;
+    color: #ff764d;
 }
 
 QPushButton.accent:disabled,
 QPushButton[btnStyle="accent"]:disabled {
-    background-color: #0a1e28;
-    color: #2a6a8a;
-    border-color: #0a2030;
+    background-color: #222222;
+    color: #8a4a3a;
+    border-color: #2a1a12;
 }
 
 /* Danger button */
 QPushButton.danger,
 QPushButton[btnStyle="danger"] {
-    background-color: #151515;
-    color: #e57373;
-    border-color: #3b1515;
+    background-color: #2a2a2a;
+    color: #e07070;
+    border-color: #3a1e1e;
 }
 
 QPushButton.danger:hover,
 QPushButton[btnStyle="danger"]:hover {
-    background-color: #3b1515;
-    color: #e57373;
-    border-color: #5a2020;
+    background-color: #3a1e1e;
+    color: #e07070;
+    border-color: #5a2828;
 }
 
 QPushButton.danger:pressed,
 QPushButton[btnStyle="danger"]:pressed {
-    background-color: #2d1010;
-    color: #e57373;
+    background-color: #2d1818;
+    color: #e07070;
 }
 
 QPushButton.danger:disabled,
 QPushButton[btnStyle="danger"]:disabled {
-    background-color: #1a0a0a;
-    color: #5a2a2a;
-    border-color: #220e0e;
+    background-color: #222222;
+    color: #5a3030;
+    border-color: #251010;
 }
 
 /* Small button variant */
 QPushButton.sm,
 QPushButton[btnStyle="sm"] {
-    font-size: 13pt;
-    padding: 4px 9px;
+    font-size: 11pt;
+    padding: 4px 12px;
 }
 
-/* Undo button — amber tone, transient state */
+/* Undo button — amber, transient */
 QPushButton[btnStyle="undo"] {
-    background-color: #3a2a00;
-    color: #ffcc00;
-    border-color: #665200;
+    background-color: #3a2a18;
+    color: #e8a84a;
+    border-color: #4a3518;
 }
 
 QPushButton[btnStyle="undo"]:hover {
-    background-color: #4d3800;
-    border-color: #887000;
-    color: #ffdd33;
+    background-color: #4a3518;
+    border-color: #5a4020;
+    color: #f0b85a;
 }
 
 /* Icon-only delete button inside playlist items */
@@ -489,20 +498,20 @@ QPushButton#deleteBtn {
     background-color: transparent;
     color: transparent;
     border: none;
-    border-radius: 3px;
-    padding: 2px 5px;
+    border-radius: 0px;
+    padding: 4px 8px;
     font-size: 15pt;
     min-width: 24px;
     max-width: 24px;
 }
 
 QPushButton#deleteBtn:hover {
-    color: #e57373;
+    color: #e07070;
     background-color: transparent;
 }
 
 QPushButton#deleteBtn:pressed {
-    color: #c05050;
+    color: #c06060;
 }
 
 /* =============================================================================
@@ -511,27 +520,28 @@ QPushButton#deleteBtn:pressed {
 
 QLabel {
     background-color: transparent;
-    color: #d0d0d0;
+    color: #d8d8d8;
 }
 
 QLabel.muted {
-    color: #444444;
+    color: #5a5a5a;
 }
 
 QLabel.secondary {
-    color: #777777;
+    color: #808080;
 }
 
 QLabel.mono {
     font-family: "Consolas", "Courier New", monospace;
     font-size: 13pt;
-    color: #777777;
+    color: #808080;
 }
 
 /* Stats display in toolbar */
 QLabel#statsLabel {
-    font-size: 15pt;
-    color: #444444;
+    font-size: 12pt;
+    font-family: "Consolas", "Courier New", monospace;
+    color: #5a5a5a;
     background-color: transparent;
     white-space: nowrap;
 }
@@ -553,103 +563,103 @@ QLabel#statsLabel {
    ============================================================================= */
 
 QLabel.badge-mp3 {
-    color: #444444;
-    background-color: #1c1c1c;
+    color: #5a5a5a;
+    background-color: #353535;
     font-family: "Consolas", "Courier New", monospace;
-    font-size: 11pt;
+    font-size: 10pt;
     font-weight: 600;
-    padding: 2px 7px;
-    border-radius: 3px;
+    padding: 2px 6px;
+    border-radius: 1px;
 }
 
 QLabel.badge-flac {
-    color: #4fc3f7;
-    background-color: #0d3b4f;
+    color: #ff764d;
+    background-color: #4a2a22;
     font-family: "Consolas", "Courier New", monospace;
-    font-size: 11pt;
+    font-size: 10pt;
     font-weight: 600;
-    padding: 2px 7px;
-    border-radius: 3px;
+    padding: 2px 6px;
+    border-radius: 1px;
 }
 
 QLabel.badge-wav {
-    color: #ce93d8;
-    background-color: #2a1a33;
+    color: #c88dd0;
+    background-color: #2a1a30;
     font-family: "Consolas", "Courier New", monospace;
-    font-size: 11pt;
+    font-size: 10pt;
     font-weight: 600;
-    padding: 2px 7px;
-    border-radius: 3px;
+    padding: 2px 6px;
+    border-radius: 1px;
 }
 
 QLabel.badge-aiff {
-    color: #81c784;
-    background-color: #1b3a1b;
+    color: #7cb87e;
+    background-color: #1e2e1e;
     font-family: "Consolas", "Courier New", monospace;
-    font-size: 11pt;
+    font-size: 10pt;
     font-weight: 600;
-    padding: 2px 7px;
-    border-radius: 3px;
+    padding: 2px 6px;
+    border-radius: 1px;
 }
 
 QLabel.badge-ogg {
-    color: #ffb74d;
-    background-color: #3b2a0d;
+    color: #e8a84a;
+    background-color: #3a2a18;
     font-family: "Consolas", "Courier New", monospace;
-    font-size: 11pt;
+    font-size: 10pt;
     font-weight: 600;
-    padding: 2px 7px;
-    border-radius: 3px;
+    padding: 2px 6px;
+    border-radius: 1px;
 }
 
 QLabel.badge-m4a {
-    color: #f48fb1;
-    background-color: #3b1525;
+    color: #e88aa0;
+    background-color: #3a1522;
     font-family: "Consolas", "Courier New", monospace;
-    font-size: 11pt;
+    font-size: 10pt;
     font-weight: 600;
-    padding: 2px 7px;
-    border-radius: 3px;
+    padding: 2px 6px;
+    border-radius: 1px;
 }
 
 QLabel.badge-alac {
-    color: #4db6ac;
-    background-color: #0d3b35;
+    color: #5ab5ac;
+    background-color: #0d2e2e;
     font-family: "Consolas", "Courier New", monospace;
-    font-size: 11pt;
+    font-size: 10pt;
     font-weight: 600;
-    padding: 2px 7px;
-    border-radius: 3px;
+    padding: 2px 6px;
+    border-radius: 1px;
 }
 
 QLabel.badge-wma {
-    color: #e57373;
-    background-color: #3b1515;
+    color: #e07070;
+    background-color: #3a1e1e;
     font-family: "Consolas", "Courier New", monospace;
-    font-size: 11pt;
+    font-size: 10pt;
     font-weight: 600;
-    padding: 2px 7px;
-    border-radius: 3px;
+    padding: 2px 6px;
+    border-radius: 1px;
 }
 
 QLabel.badge-aac {
-    color: #aed581;
-    background-color: #1f3a0d;
+    color: #9ec86e;
+    background-color: #1a2e0d;
     font-family: "Consolas", "Courier New", monospace;
-    font-size: 11pt;
+    font-size: 10pt;
     font-weight: 600;
-    padding: 2px 7px;
-    border-radius: 3px;
+    padding: 2px 6px;
+    border-radius: 1px;
 }
 
 QLabel.badge-other {
-    color: #444444;
-    background-color: #1c1c1c;
+    color: #5a5a5a;
+    background-color: #353535;
     font-family: "Consolas", "Courier New", monospace;
-    font-size: 11pt;
+    font-size: 10pt;
     font-weight: 600;
-    padding: 2px 7px;
-    border-radius: 3px;
+    padding: 2px 6px;
+    border-radius: 1px;
 }
 
 /* =============================================================================
@@ -657,47 +667,47 @@ QLabel.badge-other {
    ============================================================================= */
 
 QLabel.conv-pending {
-    color: #ffb74d;
-    background-color: #3b2a0d;
+    color: #e8a84a;
+    background-color: #3a2a18;
     font-family: "Consolas", "Courier New", monospace;
-    font-size: 11pt;
+    font-size: 10pt;
     font-weight: 500;
-    letter-spacing: 0.5px;
-    padding: 4px 9px;
-    border-radius: 4px;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 1px;
 }
 
 QLabel.conv-active {
-    color: #4fc3f7;
-    background-color: #0d3b4f;
+    color: #ff764d;
+    background-color: #4a2a22;
     font-family: "Consolas", "Courier New", monospace;
-    font-size: 11pt;
+    font-size: 10pt;
     font-weight: 500;
-    letter-spacing: 0.5px;
-    padding: 4px 9px;
-    border-radius: 4px;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 1px;
 }
 
 QLabel.conv-done {
-    color: #81c784;
-    background-color: #1b3a1b;
+    color: #7cb87e;
+    background-color: #1e2e1e;
     font-family: "Consolas", "Courier New", monospace;
-    font-size: 11pt;
+    font-size: 10pt;
     font-weight: 500;
-    letter-spacing: 0.5px;
-    padding: 4px 9px;
-    border-radius: 4px;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 1px;
 }
 
 QLabel.conv-failed {
-    color: #e57373;
-    background-color: #3b1515;
+    color: #e07070;
+    background-color: #3a1e1e;
     font-family: "Consolas", "Courier New", monospace;
-    font-size: 11pt;
+    font-size: 10pt;
     font-weight: 500;
-    letter-spacing: 0.5px;
-    padding: 4px 9px;
-    border-radius: 4px;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 1px;
 }
 
 /* =============================================================================
@@ -705,30 +715,30 @@ QLabel.conv-failed {
    ============================================================================= */
 
 QComboBox {
-    background-color: #151515;
-    color: #d0d0d0;
+    background-color: #2a2a2a;
+    color: #d8d8d8;
     font-family: "Consolas", "Courier New", monospace;
-    font-size: 13pt;
+    font-size: 12pt;
     text-transform: uppercase;
-    border: 1px solid #1e1e1e;
-    border-radius: 5px;
-    padding: 7px 32px 7px 12px;
+    border: 1px solid #2d2d2d;
+    border-radius: 1px;
+    padding: 8px 32px 8px 12px;
     min-width: 80px;
 }
 
 QComboBox:hover {
-    border-color: #444444;
-    background-color: #1c1c1c;
+    border-color: #505050;
+    background-color: #353535;
 }
 
 QComboBox:focus {
-    border-color: #444444;
+    border-color: #ff764d;
 }
 
 QComboBox:disabled {
-    background-color: #0e0e0e;
-    color: #333333;
-    border-color: #1a1a1a;
+    background-color: #222222;
+    color: #404040;
+    border-color: #252525;
 }
 
 QComboBox::drop-down {
@@ -743,11 +753,11 @@ QComboBox::down-arrow {
 }
 
 QComboBox QAbstractItemView {
-    background-color: #151515;
-    color: #d0d0d0;
-    border: 1px solid #1e1e1e;
-    selection-background-color: #0d3b4f;
-    selection-color: #d0d0d0;
+    background-color: #2a2a2a;
+    color: #d8d8d8;
+    border: 1px solid #2d2d2d;
+    selection-background-color: #4a2a22;
+    selection-color: #d8d8d8;
     outline: none;
     padding: 4px 0px;
 }
@@ -755,11 +765,11 @@ QComboBox QAbstractItemView {
 QComboBox QAbstractItemView::item {
     padding: 8px 12px;
     font-family: "Consolas", "Courier New", monospace;
-    font-size: 13pt;
+    font-size: 12pt;
 }
 
 QComboBox QAbstractItemView::item:hover {
-    background-color: #1c1c1c;
+    background-color: #353535;
 }
 
 /* =============================================================================
@@ -773,13 +783,13 @@ QScrollBar:vertical {
 }
 
 QScrollBar::handle:vertical {
-    background-color: #222222;
-    border-radius: 3px;
+    background-color: #353535;
+    border-radius: 0px;
     min-height: 24px;
 }
 
 QScrollBar::handle:vertical:hover {
-    background-color: #333333;
+    background-color: #505050;
 }
 
 QScrollBar::add-line:vertical,
@@ -801,13 +811,13 @@ QScrollBar:horizontal {
 }
 
 QScrollBar::handle:horizontal {
-    background-color: #222222;
-    border-radius: 3px;
+    background-color: #353535;
+    border-radius: 0px;
     min-width: 24px;
 }
 
 QScrollBar::handle:horizontal:hover {
-    background-color: #333333;
+    background-color: #505050;
 }
 
 QScrollBar::add-line:horizontal,
@@ -827,42 +837,43 @@ QScrollBar::sub-page:horizontal {
    ============================================================================= */
 
 QPlainTextEdit#activityLog {
-    background-color: #080808;
-    color: #444444;
+    background-color: #1a1a1a;
+    color: #5a5a5a;
     font-family: "Consolas", "Courier New", monospace;
-    font-size: 13pt;
+    font-size: 12pt;
     line-height: 1.7;
     border: none;
-    border-top: 1px solid #1e1e1e;
-    padding: 5px 18px 9px 18px;
-    selection-background-color: #0d3b4f;
-    selection-color: #d0d0d0;
+    border-top: 1px solid #2d2d2d;
+    padding: 8px 16px 8px 16px;
+    selection-background-color: #4a2a22;
+    selection-color: #d8d8d8;
 }
 
 /* Log header bar */
 QWidget#activityLogHeader {
-    background-color: #080808;
-    border-top: 1px solid #1e1e1e;
-    padding: 9px 18px 5px 18px;
+    background-color: #1a1a1a;
+    border-top: 1px solid #2d2d2d;
+    padding: 8px 16px 8px 16px;
     min-height: 32px;
     max-height: 32px;
 }
 
 QLabel#activityLogTitle {
-    font-size: 13pt;
-    color: #444444;
-    letter-spacing: 1.5px;
+    font-size: 11pt;
+    font-family: "Consolas", "Courier New", monospace;
+    color: #5a5a5a;
+    letter-spacing: 2px;
     background-color: transparent;
 }
 
 /* Pulse dot — objectName "logDot". Managed via QPropertyAnimation in C++ */
 QLabel#logDot {
-    background-color: #444444;
-    border-radius: 3px;
-    min-width: 7px;
-    max-width: 7px;
-    min-height: 7px;
-    max-height: 7px;
+    background-color: #5a5a5a;
+    border-radius: 0px;
+    min-width: 6px;
+    max-width: 6px;
+    min-height: 6px;
+    max-height: 6px;
 }
 
 /* =============================================================================
@@ -870,73 +881,76 @@ QLabel#logDot {
    ============================================================================= */
 
 QWidget#folderFlow {
-    background-color: #080808;
-    padding: 18px 0px 12px 0px;
+    background-color: #1a1a1a;
+    padding: 16px 0px 12px 0px;
 }
 
-/* Source folder node */
+/* Source folder node — sharp, machinelike */
 QWidget#folderNodeSrc {
-    background-color: #151515;
-    border: 1px solid #1e1e1e;
-    border-radius: 24px;
+    background-color: #2a2a2a;
+    border: 1px solid #2d2d2d;
+    border-radius: 2px;
     min-width: 190px;
     max-width: 280px;
-    padding: 26px 32px 22px 32px;
+    padding: 24px 32px 16px 32px;
 }
 
 QWidget#folderNodeSrc:hover {
-    background-color: #1c1c1c;
-    border-color: #444444;
+    background-color: #353535;
+    border-color: #505050;
 }
 
 /* Output folder node */
 QWidget#folderNodeOut {
-    background-color: #151515;
-    border: 1px solid #1e1e1e;
-    border-radius: 24px;
+    background-color: #2a2a2a;
+    border: 1px solid #2d2d2d;
+    border-radius: 2px;
     min-width: 190px;
     max-width: 280px;
-    padding: 26px 32px 22px 32px;
+    padding: 24px 32px 16px 32px;
 }
 
 QWidget#folderNodeOut:hover {
-    background-color: #1c1c1c;
-    border-color: #444444;
+    background-color: #353535;
+    border-color: #505050;
 }
 
 /* Folder node label (SOURCE / AIFF OUTPUT) */
 QLabel#folderNodeLabel {
-    font-size: 13pt;
-    color: #777777;
+    font-size: 11pt;
+    font-family: "Consolas", "Courier New", monospace;
+    color: #5a5a5a;
     letter-spacing: 2px;
     background-color: transparent;
 }
 
 /* Folder node path text */
 QLabel#folderNodePath {
-    font-size: 13pt;
-    color: #444444;
+    font-size: 12pt;
+    font-family: "Consolas", "Courier New", monospace;
+    color: #5a5a5a;
     background-color: transparent;
 }
 
 /* Folder icon label — accent for source, green for output */
 QLabel#folderIconSrc {
-    color: #4fc3f7;
+    color: #ff764d;
     background-color: transparent;
 }
 
 QLabel#folderIconOut {
-    color: #81c784;
+    color: #7cb87e;
     background-color: transparent;
 }
 
 /* Converter status indicator */
 QLabel#converterStatus {
-    font-size: 13pt;
-    color: #81c784;
-    background-color: #1b3a1b;
-    padding: 5px 12px;
-    border-radius: 4px;
+    font-size: 12pt;
+    font-family: "Consolas", "Courier New", monospace;
+    color: #7cb87e;
+    background-color: #1e2e1e;
+    padding: 4px 12px;
+    border-radius: 1px;
 }
 
 /* =============================================================================
@@ -944,42 +958,45 @@ QLabel#converterStatus {
    ============================================================================= */
 
 QWidget#trackDetailPanel {
-    background-color: #0e0e0e;
-    border-top: 1px solid #1e1e1e;
-    padding: 12px 28px 18px 50px;
+    background-color: #222222;
+    border-top: 1px solid #2d2d2d;
+    padding: 12px 24px 16px 48px;
 }
 
 QLabel#detailKey {
-    font-size: 11pt;
-    color: #444444;
-    letter-spacing: 1px;
+    font-size: 10pt;
+    font-family: "Consolas", "Courier New", monospace;
+    color: #5a5a5a;
+    letter-spacing: 2px;
     background-color: transparent;
 }
 
 QLabel#detailValue {
-    font-size: 13pt;
-    color: #d0d0d0;
+    font-size: 12pt;
+    font-family: "Consolas", "Courier New", monospace;
+    color: #d8d8d8;
     background-color: transparent;
 }
 
-/* Playlist membership chip — small rounded rect */
+/* Playlist membership chip — sharp */
 QPushButton#playlistChip {
     background-color: transparent;
-    color: #777777;
-    font-size: 13pt;
-    padding: 4px 10px;
-    border: 1px solid #1e1e1e;
-    border-radius: 5px;
+    color: #808080;
+    font-size: 12pt;
+    font-family: "Consolas", "Courier New", monospace;
+    padding: 4px 12px;
+    border: 1px solid #2d2d2d;
+    border-radius: 1px;
 }
 
 QPushButton#playlistChip:hover {
-    background-color: #1c1c1c;
-    border-color: #444444;
+    background-color: #2a2a2a;
+    border-color: #505050;
 }
 
 QPushButton#playlistChip[checked="true"] {
-    color: #4fc3f7;
-    border-color: #0d3b4f;
+    color: #ff764d;
+    border-color: #4a2a22;
 }
 
 /* =============================================================================
@@ -988,11 +1005,11 @@ QPushButton#playlistChip[checked="true"] {
 
 QLabel#keyTag {
     font-family: "Consolas", "Courier New", monospace;
-    font-size: 13pt;
-    color: #555555;
-    background-color: #151515;
-    padding: 2px 7px;
-    border-radius: 3px;
+    font-size: 12pt;
+    color: #5a5a5a;
+    background-color: #2a2a2a;
+    padding: 4px 8px;
+    border-radius: 1px;
 }
 
 /* =============================================================================
@@ -1000,7 +1017,7 @@ QLabel#keyTag {
    ============================================================================= */
 
 QLabel#ratingStars {
-    color: #b08d57;
+    color: #b8955a;
     letter-spacing: 1px;
     background-color: transparent;
     font-size: 15pt;
@@ -1011,29 +1028,30 @@ QLabel#ratingStars {
    ============================================================================= */
 
 QTabBar {
-    background-color: #0e0e0e;
-    border-bottom: 1px solid #1e1e1e;
+    background-color: #222222;
+    border-bottom: 1px solid #2d2d2d;
 }
 
 QTabBar::tab {
     background-color: transparent;
-    color: #444444;
-    font-size: 15pt;
-    letter-spacing: 1px;
-    padding: 15px 23px;
+    color: #5a5a5a;
+    font-size: 13pt;
+    font-family: "Consolas", "Courier New", monospace;
+    letter-spacing: 2px;
+    padding: 16px 24px;
     border: none;
-    border-bottom: 2px solid transparent;
+    border-bottom: 3px solid transparent;
 }
 
 QTabBar::tab:hover {
-    background-color: #151515;
-    color: #777777;
+    background-color: #2a2a2a;
+    color: #808080;
 }
 
 QTabBar::tab:selected {
-    background-color: #151515;
-    color: #d0d0d0;
-    border-bottom: 2px solid #4fc3f7;
+    background-color: #2a2a2a;
+    color: #ff764d;
+    border-bottom: 3px solid #ff764d;
 }
 
 /* =============================================================================
@@ -1041,12 +1059,13 @@ QTabBar::tab:selected {
    ============================================================================= */
 
 QToolTip {
-    background-color: #151515;
-    color: #d0d0d0;
-    border: 1px solid #1e1e1e;
-    font-size: 13pt;
-    padding: 6px 10px;
-    border-radius: 3px;
+    background-color: #2a2a2a;
+    color: #d8d8d8;
+    border: 1px solid #2d2d2d;
+    font-size: 12pt;
+    font-family: "Consolas", "Courier New", monospace;
+    padding: 8px 12px;
+    border-radius: 1px;
 }
 
 /* =============================================================================
@@ -1054,29 +1073,30 @@ QToolTip {
    ============================================================================= */
 
 QMenu {
-    background-color: #151515;
-    color: #d0d0d0;
-    border: 1px solid #1e1e1e;
+    background-color: #2a2a2a;
+    color: #d8d8d8;
+    border: 1px solid #2d2d2d;
     padding: 4px 0px;
 }
 
 QMenu::item {
-    padding: 8px 20px;
-    font-size: 15pt;
+    padding: 8px 24px;
+    font-size: 13pt;
+    font-family: "Consolas", "Courier New", monospace;
 }
 
 QMenu::item:selected {
-    background-color: #0d3b4f;
-    color: #d0d0d0;
+    background-color: #4a2a22;
+    color: #d8d8d8;
 }
 
 QMenu::item:disabled {
-    color: #333333;
+    color: #404040;
 }
 
 QMenu::separator {
     height: 1px;
-    background-color: #1e1e1e;
+    background-color: #2d2d2d;
     margin: 4px 0px;
 }
 
@@ -1085,14 +1105,14 @@ QMenu::separator {
    ============================================================================= */
 
 QDialog {
-    background-color: #151515;
-    border: 1px solid #1e1e1e;
-    border-radius: 10px;
+    background-color: #2a2a2a;
+    border: 1px solid #2d2d2d;
+    border-radius: 1px;
 }
 
 QDialog QLabel {
-    font-size: 17pt;
-    color: #777777;
+    font-size: 15pt;
+    color: #808080;
     letter-spacing: 1px;
 }
 
@@ -1101,8 +1121,9 @@ QDialog QLabel {
    ============================================================================= */
 
 QCheckBox {
-    color: #777777;
-    font-size: 13pt;
+    color: #808080;
+    font-size: 12pt;
+    font-family: "Consolas", "Courier New", monospace;
     spacing: 6px;
     background-color: transparent;
 }
@@ -1110,21 +1131,1082 @@ QCheckBox {
 QCheckBox::indicator {
     width: 14px;
     height: 14px;
-    border: 1px solid #444444;
-    border-radius: 3px;
-    background-color: #151515;
+    border: 1px solid #505050;
+    border-radius: 0px;
+    background-color: #2a2a2a;
 }
 
 QCheckBox::indicator:hover {
-    border-color: #4fc3f7;
+    border-color: #ff764d;
 }
 
 QCheckBox::indicator:checked {
-    background-color: #0d3b4f;
-    border-color: #4fc3f7;
+    background-color: #4a2a22;
+    border-color: #ff764d;
     image: url(:/icons/check.svg);
 }
 
 QCheckBox::indicator:checked:hover {
-    background-color: #0f4060;
+    background-color: #5a3228;
+}
+
+/* =============================================================================
+   PLAYER BAR (audio playback strip at bottom of library)
+   ============================================================================= */
+
+QWidget#playerBar {
+    background-color: #1e1e1e;
+    border-top: 1px solid #2d2d2d;
+    min-height: 64px;
+    max-height: 64px;
+}
+
+QPushButton#playerPlayBtn {
+    background-color: #2a2a2a;
+    color: #d8d8d8;
+    font-size: 16pt;
+    border: 1px solid #353535;
+    border-radius: 2px;
+    padding: 0px;
+    min-width: 36px;
+    max-width: 36px;
+    min-height: 36px;
+    max-height: 36px;
+}
+
+QPushButton#playerPlayBtn:hover {
+    background-color: #353535;
+    color: #ff764d;
+    border-color: #505050;
+}
+
+QPushButton#playerPlayBtn:pressed {
+    background-color: #2a2a2a;
+    color: #ff764d;
+}
+
+QPushButton#playerPlayBtn:disabled {
+    color: #404040;
+    border-color: #252525;
+}
+
+QLabel#playerTrackLabel {
+    font-size: 13pt;
+    color: #d8d8d8;
+    background-color: transparent;
+}
+
+QLabel#playerTimeLabel {
+    font-size: 11pt;
+    font-family: "Consolas", "Courier New", monospace;
+    color: #5a5a5a;
+    background-color: transparent;
+    white-space: nowrap;
+}
+
+QSlider#playerSeekSlider::groove:horizontal {
+    height: 3px;
+    background-color: #353535;
+    border-radius: 1px;
+}
+
+QSlider#playerSeekSlider::handle:horizontal {
+    background-color: #ff764d;
+    border: none;
+    width: 10px;
+    height: 10px;
+    margin: -4px 0px;
+    border-radius: 5px;
+}
+
+QSlider#playerSeekSlider::sub-page:horizontal {
+    background-color: #ff764d;
+    border-radius: 1px;
+}
+
+QSlider#playerSeekSlider:disabled::groove:horizontal {
+    background-color: #252525;
+}
+
+QSlider#playerSeekSlider:disabled::sub-page:horizontal {
+    background-color: transparent;
+}
+
+QSlider#playerVolSlider::groove:horizontal {
+    height: 3px;
+    background-color: #353535;
+    border-radius: 1px;
+}
+
+QSlider#playerVolSlider::handle:horizontal {
+    background-color: #808080;
+    border: none;
+    width: 8px;
+    height: 8px;
+    margin: -3px 0px;
+    border-radius: 4px;
+}
+
+QSlider#playerVolSlider::sub-page:horizontal {
+    background-color: #505050;
+    border-radius: 1px;
+}
+
+/* =============================================================================
+   FOLDER PANEL (library folder picker sidebar)
+   ============================================================================= */
+
+QWidget#folderPanel {
+    background-color: #222222;
+    border-right: 1px solid #2d2d2d;
+}
+
+QWidget#folderPanelHeader {
+    background-color: #222222;
+    border-bottom: 1px solid #2d2d2d;
+}
+
+QLabel#folderPanelTitle {
+    color: #d8d8d8;
+    background-color: transparent;
+}
+
+QLabel#folderPath {
+    font-size: 11pt;
+    font-family: "Consolas", "Courier New", monospace;
+    color: #5a5a5a;
+    background-color: transparent;
+}
+
+/* =============================================================================
+   RADIO BUTTONS (export options, output format selector)
+   ============================================================================= */
+
+QRadioButton {
+    color: #808080;
+    font-size: 13pt;
+    font-family: "Figtree", "Segoe UI", sans-serif;
+    spacing: 8px;
+    background-color: transparent;
+}
+
+QRadioButton:hover {
+    color: #d8d8d8;
+}
+
+QRadioButton::indicator {
+    width: 14px;
+    height: 14px;
+    border: 1px solid #505050;
+    border-radius: 7px;
+    background-color: #2a2a2a;
+}
+
+QRadioButton::indicator:hover {
+    border-color: #ff764d;
+}
+
+QRadioButton::indicator:checked {
+    background-color: #4a2a22;
+    border-color: #ff764d;
+    /* centre dot drawn by a second ring — use a 4px inset dot via image if SVG available,
+       otherwise the border-color change alone reads as checked at this scale */
+    image: url(:/icons/radio_checked.svg);
+}
+
+/* =============================================================================
+   EXPORT WIZARD DIALOG  (#exportWizard)
+   Two-step QDialog: step 1 = target selection, step 2 = options.
+   Size: fixed 640×520. Opened modal, centred on MainWindow.
+   ============================================================================= */
+
+QDialog#exportWizard {
+    background-color: #1a1a1a;
+    border: 1px solid #2d2d2d;
+    border-radius: 1px;
+}
+
+/* ── Step indicator — monospace uppercase badge at top of dialog ─────────────
+   Object name: "exportStep"
+   Text set by code: "01  TARGET" or "02  OPTIONS"
+   ──────────────────────────────────────────────────────────────────────────── */
+QLabel#exportStep {
+    font-size: 10pt;
+    font-family: "Consolas", "Courier New", monospace;
+    font-weight: 400;
+    letter-spacing: 3px;
+    color: #5a5a5a;
+    background-color: transparent;
+}
+
+/* ── Dialog section header ───────────────────────────────────────────────────
+   Object name: "exportSectionTitle"
+   Larger label above the card row or options columns.
+   ──────────────────────────────────────────────────────────────────────────── */
+QLabel#exportSectionTitle {
+    font-size: 14pt;
+    font-family: "Figtree", "Segoe UI", sans-serif;
+    font-weight: 400;
+    color: #d8d8d8;
+    background-color: transparent;
+}
+
+/* ── Export type cards ───────────────────────────────────────────────────────
+   Object name: "exportTypeCard"
+   Two large QPushButton widgets side-by-side.
+   Size: ~280×160px each. Mutually exclusive selection via button group.
+   Deselected:  #2a2a2a bg, #2d2d2d border
+   Selected:    #4a2a22 bg, #ff764d border (3px), accent text
+   Use setProperty("selected", true/false) + repolish().
+   ──────────────────────────────────────────────────────────────────────────── */
+QPushButton#exportTypeCard {
+    background-color: #2a2a2a;
+    color: #808080;
+    font-size: 13pt;
+    font-family: "Figtree", "Segoe UI", sans-serif;
+    font-weight: 500;
+    text-align: left;
+    padding: 24px 32px;
+    border: 1px solid #2d2d2d;
+    border-radius: 1px;
+    min-width: 260px;
+    min-height: 140px;
+}
+
+QPushButton#exportTypeCard:hover {
+    background-color: #353535;
+    color: #d8d8d8;
+    border-color: #505050;
+}
+
+QPushButton#exportTypeCard:pressed {
+    background-color: #2a2a2a;
+    color: #d8d8d8;
+    border-color: #ff764d;
+}
+
+QPushButton#exportTypeCard[selected="true"] {
+    background-color: #4a2a22;
+    color: #ff764d;
+    border: 2px solid #ff764d;
+    border-radius: 1px;
+}
+
+QPushButton#exportTypeCard[selected="true"]:hover {
+    background-color: #5a3228;
+    color: #ff764d;
+    border: 2px solid #ff764d;
+}
+
+/* ── Card title and description labels (inside the QPushButton via layout) ──
+   "exportCardTitle" — primary format name, Consolas, body size
+   "exportCardDesc"  — one-line description, Figtree secondary, muted
+   ──────────────────────────────────────────────────────────────────────────── */
+QLabel#exportCardTitle {
+    font-size: 14pt;
+    font-family: "Consolas", "Courier New", monospace;
+    font-weight: 600;
+    color: #d8d8d8;
+    background-color: transparent;
+    letter-spacing: 1px;
+}
+
+QLabel#exportCardDesc {
+    font-size: 12pt;
+    font-family: "Figtree", "Segoe UI", sans-serif;
+    color: #5a5a5a;
+    background-color: transparent;
+}
+
+/* When a card is selected, its title and description shift to accent territory.
+   Set via dynamic property on the parent card's children or direct inline style
+   in the card's paintEvent / selection handler. The QSS below covers the case
+   where labels are standalone children inside a layout-less card widget. */
+QPushButton#exportTypeCard[selected="true"] QLabel#exportCardTitle {
+    color: #ff764d;
+}
+
+QPushButton#exportTypeCard[selected="true"] QLabel#exportCardDesc {
+    color: #8a4a3a;
+}
+
+/* ── Output path row ─────────────────────────────────────────────────────────
+   A QLineEdit ("exportPathInput") + QPushButton ("exportBrowseBtn") side by
+   side, separated by 8px. The field stretches; the button is fixed.
+   ──────────────────────────────────────────────────────────────────────────── */
+QLineEdit#exportPathInput {
+    background-color: #222222;
+    color: #d8d8d8;
+    font-size: 12pt;
+    font-family: "Consolas", "Courier New", monospace;
+    border: 1px solid #2d2d2d;
+    border-radius: 1px;
+    padding: 8px 12px;
+    selection-background-color: #4a2a22;
+    selection-color: #d8d8d8;
+}
+
+QLineEdit#exportPathInput:hover {
+    border-color: #505050;
+}
+
+QLineEdit#exportPathInput:focus {
+    border-color: #ff764d;
+    background-color: #222222;
+}
+
+QLineEdit#exportPathInput::placeholder {
+    color: #5a5a5a;
+}
+
+QPushButton#exportBrowseBtn {
+    background-color: #2a2a2a;
+    color: #808080;
+    font-size: 11pt;
+    font-family: "Consolas", "Courier New", monospace;
+    padding: 8px 16px;
+    border: 1px solid #2d2d2d;
+    border-radius: 1px;
+    min-width: 80px;
+}
+
+QPushButton#exportBrowseBtn:hover {
+    background-color: #353535;
+    color: #d8d8d8;
+    border-color: #505050;
+}
+
+/* ── Step 2: Playlist checklist scroll area ──────────────────────────────────
+   Object name on the container widget: "exportPlaylistScroll"
+   QScrollArea wrapping a QWidget of QCheckBox rows.
+   The checkboxes inherit the global QCheckBox rules above.
+   Column header label above the list: "exportColHeader"
+   ──────────────────────────────────────────────────────────────────────────── */
+QLabel#exportColHeader {
+    font-size: 10pt;
+    font-family: "Consolas", "Courier New", monospace;
+    letter-spacing: 2px;
+    color: #5a5a5a;
+    background-color: transparent;
+}
+
+QWidget#exportPlaylistScroll {
+    background-color: #222222;
+    border: 1px solid #2d2d2d;
+    border-radius: 1px;
+}
+
+/* ── Step 2: Estimated size label ────────────────────────────────────────────
+   Object name: "exportSizeEstimate"
+   Monospace, muted. Updated dynamically as playlists are selected.
+   Example text: "≈ 4.2 GB"
+   ──────────────────────────────────────────────────────────────────────────── */
+QLabel#exportSizeEstimate {
+    font-size: 12pt;
+    font-family: "Consolas", "Courier New", monospace;
+    color: #5a5a5a;
+    background-color: transparent;
+}
+
+/* ── Dialog footer ───────────────────────────────────────────────────────────
+   Object name: "exportFooter"
+   1px top border, PadMd vertical padding. Contains Back + Export buttons
+   right-aligned. The strip below is part of the same widget (see exportProgress).
+   ──────────────────────────────────────────────────────────────────────────── */
+QWidget#exportFooter {
+    background-color: #1a1a1a;
+    border-top: 1px solid #2d2d2d;
+    padding: 12px 24px;
+}
+
+/* Back button — standard secondary style */
+QPushButton#exportBackBtn {
+    background-color: transparent;
+    color: #5a5a5a;
+    font-size: 12pt;
+    font-family: "Figtree", "Segoe UI", sans-serif;
+    padding: 8px 16px;
+    border: 1px solid #2d2d2d;
+    border-radius: 1px;
+}
+
+QPushButton#exportBackBtn:hover {
+    background-color: #2a2a2a;
+    color: #808080;
+    border-color: #505050;
+}
+
+QPushButton#exportBackBtn:pressed {
+    background-color: #222222;
+    color: #d8d8d8;
+}
+
+QPushButton#exportBackBtn:disabled {
+    color: #404040;
+    border-color: #252525;
+}
+
+/* Export / Next button — accent */
+QPushButton#exportConfirmBtn {
+    background-color: #2a2a2a;
+    color: #ff764d;
+    font-size: 12pt;
+    font-family: "Figtree", "Segoe UI", sans-serif;
+    font-weight: 500;
+    padding: 8px 24px;
+    border: 1px solid #4a2a22;
+    border-radius: 1px;
+}
+
+QPushButton#exportConfirmBtn:hover {
+    background-color: #4a2a22;
+    color: #ff764d;
+    border-color: #5a3228;
+}
+
+QPushButton#exportConfirmBtn:pressed {
+    background-color: #3a221a;
+    color: #ff764d;
+}
+
+QPushButton#exportConfirmBtn:disabled {
+    background-color: #222222;
+    color: #8a4a3a;
+    border-color: #2a1a12;
+}
+
+/* ── Export progress strip ───────────────────────────────────────────────────
+   Object name: "exportProgressStrip"
+   A QProgressBar rendered as a thin (4px) strip at the absolute bottom of
+   the dialog, below the footer widget. Hidden (setVisible(false)) until
+   export begins. Uses no text. Accent fill on dark track.
+
+   Layout note: place this widget BELOW exportFooter in the root QVBoxLayout
+   with setContentsMargins(0,0,0,0) and fixed height of 4px.
+   ──────────────────────────────────────────────────────────────────────────── */
+QProgressBar#exportProgressStrip {
+    background-color: #222222;
+    border: none;
+    border-radius: 0px;
+    text-align: center;
+    min-height: 4px;
+    max-height: 4px;
+}
+
+QProgressBar#exportProgressStrip::chunk {
+    background-color: #ff764d;
+    border-radius: 0px;
+}
+
+/* =============================================================================
+   ANALYSIS PROGRESS DIALOG  (#analysisDialog)
+   Compact modal: ~480×200px. No title bar chrome beyond the QDialog frame.
+   ============================================================================= */
+
+QDialog#analysisDialog {
+    background-color: #1a1a1a;
+    border: 1px solid #2d2d2d;
+    border-radius: 1px;
+    min-width: 480px;
+    max-width: 480px;
+    min-height: 200px;
+    max-height: 200px;
+}
+
+/* ── Title row: "ANALYZING LIBRARY" monospace label + pulsing dot ────────────
+   Object name on the QLabel: "analysisTitle"
+   Object name on the dot QLabel: "analysisDot"  (same animation as logDot)
+   Row is a QHBoxLayout with PadXl horizontal / PadMd vertical margins.
+   ──────────────────────────────────────────────────────────────────────────── */
+QLabel#analysisTitle {
+    font-size: 11pt;
+    font-family: "Consolas", "Courier New", monospace;
+    font-weight: 400;
+    letter-spacing: 3px;
+    color: #5a5a5a;
+    background-color: transparent;
+}
+
+/* Pulsing dot — identical geometry and animation contract to logDot.
+   In C++: QPropertyAnimation on "maximumOpacity" or drive via a QTimer
+   that toggles between color #ff764d (active) and #5a5a5a (idle) over 800ms. */
+QLabel#analysisDot {
+    background-color: #ff764d;
+    border-radius: 0px;
+    min-width: 6px;
+    max-width: 6px;
+    min-height: 6px;
+    max-height: 6px;
+}
+
+/* ── Current filename label ───────────────────────────────────────────────────
+   Object name: "analysisFilename"
+   Figtree body size, primary text color. Elide right in C++ (Qt::ElideRight).
+   Shows the stem only (no directory prefix) for readability.
+   ──────────────────────────────────────────────────────────────────────────── */
+QLabel#analysisFilename {
+    font-size: 13pt;
+    font-family: "Figtree", "Segoe UI", sans-serif;
+    font-weight: 400;
+    color: #d8d8d8;
+    background-color: transparent;
+}
+
+/* ── Progress bar ─────────────────────────────────────────────────────────────
+   Object name: "analysisProgress"
+   Standard QProgressBar with text disabled (setTextVisible(false)).
+   Accent fill on a dark bg2 track. Sharp corners, 6px height.
+   ──────────────────────────────────────────────────────────────────────────── */
+QProgressBar#analysisProgress {
+    background-color: #2a2a2a;
+    border: none;
+    border-radius: 1px;
+    text-align: center;
+    min-height: 6px;
+    max-height: 6px;
+}
+
+QProgressBar#analysisProgress::chunk {
+    background-color: #ff764d;
+    border-radius: 1px;
+}
+
+/* ── Stat labels (X / N tracks, elapsed time) ────────────────────────────────
+   Object name: "analysisStat"  — reused for both count and time labels.
+   Monospace, secondary color. Small.
+   Example text: "312 / 1048"  |  "0:48"
+   ──────────────────────────────────────────────────────────────────────────── */
+QLabel#analysisStat {
+    font-size: 11pt;
+    font-family: "Consolas", "Courier New", monospace;
+    color: #5a5a5a;
+    background-color: transparent;
+}
+
+/* ── Cancel button ───────────────────────────────────────────────────────────
+   Object name: "analysisCancelBtn"  (danger style)
+   Right-aligned in footer. QWidget#analysisFooter mirrors exportFooter styling.
+   ──────────────────────────────────────────────────────────────────────────── */
+QWidget#analysisFooter {
+    background-color: #1a1a1a;
+    border-top: 1px solid #2d2d2d;
+    padding: 12px 24px;
+}
+
+QPushButton#analysisCancelBtn {
+    background-color: #2a2a2a;
+    color: #e07070;
+    font-size: 12pt;
+    font-family: "Figtree", "Segoe UI", sans-serif;
+    font-weight: 500;
+    padding: 8px 20px;
+    border: 1px solid #3a1e1e;
+    border-radius: 1px;
+}
+
+QPushButton#analysisCancelBtn:hover {
+    background-color: #3a1e1e;
+    color: #e07070;
+    border-color: #5a2828;
+}
+
+QPushButton#analysisCancelBtn:pressed {
+    background-color: #2d1818;
+    color: #e07070;
+}
+
+QPushButton#analysisCancelBtn:disabled {
+    background-color: #222222;
+    color: #5a3030;
+    border-color: #251010;
+}
+
+/* =============================================================================
+   FTS5 SEARCH RESULT BADGE  (#searchResultBadge)
+   Small muted label rendered to the right of the search QLineEdit in the
+   toolbar. Appears when an FTS5 query returns results; hidden on empty state
+   or when the search field is cleared.
+
+   Placement: injected into the same QHBoxLayout as #searchInput, right-aligned
+   with a fixed left margin (GapMd = 12px). No border. No background fill.
+   Text format set in code: "N results" — all lowercase, monospace.
+
+   Design rationale: this is a signal, not a control. It should register at a
+   glance without pulling focus from the track table. Text3 (#5a5a5a) is below
+   the secondary tier — it sits in the same register as column headers and
+   version labels: present but not demanding.
+   ============================================================================= */
+
+QLabel#searchResultBadge {
+    /* Theme::Color::Text3 = #5a5a5a — muted, non-competing */
+    color: #5a5a5a;
+    background-color: transparent;
+    font-size: 11pt;                          /* Theme::Font::Small = 11 */
+    font-family: "Consolas", "Courier New", monospace;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    border: none;
+    padding: 0px 0px 0px 4px;                /* GapXs left offset from search input */
+    /* qproperty-alignment: AlignVCenter | AlignRight — set in C++ */
+}
+
+/* =============================================================================
+   BATCH METADATA EDITOR DIALOG  (#batchEditDialog)
+   Fixed 480×420, frameless (Qt::FramelessWindowHint), modal.
+   Opened when 2+ tracks are selected and "Edit Selected" is triggered.
+   Mirrors the AnalysisProgressDialog structural pattern: header / body / footer.
+
+   Fields: Artist, Album, Genre, BPM, Comment (QLineEdit each).
+           Rating: row of 5 QPushButton#batchRatingBtn, toggleable.
+   Title field is disabled (bulk title rename is destructive — see task spec).
+   Blank field = keep existing value. Non-blank = apply to all selected tracks.
+
+   Window flags: Qt::Dialog | Qt::FramelessWindowHint
+   Attribute: Qt::WA_StyledBackground = true (required for frameless QSS border)
+   ============================================================================= */
+
+QDialog#batchEditDialog {
+    /* Theme::Color::Bg = #1a1a1a — same depth as analysisDialog */
+    background-color: #1a1a1a;
+    border: 1px solid #2d2d2d;               /* Theme::Color::Border — provides visual frame */
+    border-radius: 1px;
+    min-width: 480px;
+    max-width: 480px;
+    min-height: 420px;
+    max-height: 420px;
+}
+
+/* ── Header row ─────────────────────────────────────────────────────────────
+   QWidget#batchEditHeader: dark strip with 1px bottom border.
+   Contains QLabel#batchEditTitle (left) + QLabel#batchEditDot (6×6 pulsing
+   square, right-aligned via expanding spacer). Static dot — no pulse animation
+   needed here since no background operation is running. Color: Text3.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+QWidget#batchEditHeader {
+    background-color: #1a1a1a;              /* Theme::Color::Bg */
+    border-bottom: 1px solid #2d2d2d;       /* Theme::Color::Border */
+    min-height: 48px;
+    max-height: 48px;
+}
+
+/* "EDIT N TRACKS" — monospace, uppercase, letter-spaced.
+   N is substituted in code before dialog opens. */
+QLabel#batchEditTitle {
+    font-size: 11pt;                         /* Theme::Font::Small */
+    font-family: "Consolas", "Courier New", monospace;
+    font-weight: 400;
+    letter-spacing: 3px;
+    color: #5a5a5a;                          /* Theme::Color::Text3 */
+    background-color: transparent;
+}
+
+/* Static dot — present for structural symmetry with other dialogs.
+   Color: Text3. No pulse since no async operation is active. */
+QLabel#batchEditDot {
+    background-color: #5a5a5a;              /* Theme::Color::Text3 */
+    border-radius: 0px;
+    min-width: 6px;
+    max-width: 6px;
+    min-height: 6px;
+    max-height: 6px;
+}
+
+/* ── Form body ───────────────────────────────────────────────────────────────
+   QWidget#batchEditForm: transparent container holding a QFormLayout.
+   QFormLayout margins: 24px horizontal, 16px vertical, row spacing 12px.
+   Field labels use Consolas Small (11pt) in Text3 to match column headers.
+   Input fields reuse the standard input pattern (bg2 base, border, focus orange).
+   ─────────────────────────────────────────────────────────────────────────── */
+
+QWidget#batchEditForm {
+    background-color: transparent;
+}
+
+/* Form row labels — Consolas Small, muted. Consistent with detailKey/exportColHeader. */
+QWidget#batchEditForm QLabel {
+    font-size: 11pt;                         /* Theme::Font::Small */
+    font-family: "Consolas", "Courier New", monospace;
+    font-weight: 400;
+    letter-spacing: 1.5px;
+    color: #5a5a5a;                          /* Theme::Color::Text3 */
+    background-color: transparent;
+    min-width: 80px;
+}
+
+/* Text inputs — same contract as exportPathInput: bg2 base, structural border,
+   accent focus ring. Placeholder text communicates the "leave blank" behaviour. */
+QWidget#batchEditForm QLineEdit {
+    background-color: #2a2a2a;              /* Theme::Color::Bg2 */
+    color: #d8d8d8;                          /* Theme::Color::Text */
+    font-size: 13pt;                         /* Theme::Font::Secondary */
+    font-family: "Figtree", "Segoe UI", sans-serif;
+    font-weight: 400;
+    border: 1px solid #2d2d2d;              /* Theme::Color::Border */
+    border-radius: 1px;
+    padding: 8px 12px;                       /* InputPadV × InputPadH */
+    selection-background-color: #4a2a22;    /* Theme::Color::AccentBg */
+    selection-color: #d8d8d8;
+}
+
+QWidget#batchEditForm QLineEdit:hover {
+    border-color: #505050;                   /* Theme::Color::BorderHov */
+}
+
+QWidget#batchEditForm QLineEdit:focus {
+    border-color: #ff764d;                   /* Theme::Color::Accent */
+    background-color: #2a2a2a;
+}
+
+QWidget#batchEditForm QLineEdit:disabled {
+    /* Title field — disabled, communicates "not editable in bulk".
+       Slightly below the standard disabled tone to signal intentional lock. */
+    background-color: #1e1e1e;
+    color: #404040;
+    border-color: #252525;
+}
+
+QWidget#batchEditForm QLineEdit::placeholder {
+    color: #5a5a5a;                          /* Theme::Color::Text3 */
+}
+
+/* ── Rating buttons ──────────────────────────────────────────────────────────
+   Five QPushButton#batchRatingBtn in a QHBoxLayout (spacing: 4px).
+   Inactive: muted gold outline. Active (setProperty("active","true")): filled gold.
+   Unicode star glyph set as button text in code: "★" (U+2605).
+   The star row lives inside #batchEditForm as a custom widget row.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+QPushButton#batchRatingBtn {
+    background-color: transparent;
+    color: #5a5a5a;                          /* Theme::Color::Text3 — inactive star */
+    font-size: 16pt;
+    border: none;
+    border-radius: 0px;
+    padding: 0px 2px;
+    min-width: 24px;
+    max-width: 24px;
+    min-height: 24px;
+    max-height: 24px;
+}
+
+QPushButton#batchRatingBtn:hover {
+    color: #b8955a;                          /* Theme::Color::Gold — preview fill on hover */
+    background-color: transparent;
+}
+
+QPushButton#batchRatingBtn[active="true"] {
+    color: #b8955a;                          /* Theme::Color::Gold — filled star */
+    background-color: transparent;
+}
+
+QPushButton#batchRatingBtn[active="true"]:hover {
+    color: #c8a56a;                          /* Gold, slightly brightened on hover */
+    background-color: transparent;
+}
+
+/* ── Hint label ──────────────────────────────────────────────────────────────
+   Sits below the form, above the footer. Communicates the blank-field behaviour.
+   Text: "(leave blank to keep existing values)"
+   ─────────────────────────────────────────────────────────────────────────── */
+
+QLabel#batchEditHint {
+    font-size: 11pt;                         /* Theme::Font::Small */
+    font-family: "Consolas", "Courier New", monospace;
+    font-weight: 400;
+    color: #5a5a5a;                          /* Theme::Color::Text3 */
+    background-color: transparent;
+    padding: 0px 24px 0px 24px;             /* ContentPadH horizontal alignment */
+    /* qproperty-alignment: AlignLeft — default, no override needed */
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────────
+   Mirrors analysisFooter / exportFooter: bg Bg, 1px top border, 56px height.
+   CANCEL left, APPLY right, expanding spacer between.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+QWidget#batchEditFooter {
+    background-color: #1a1a1a;              /* Theme::Color::Bg */
+    border-top: 1px solid #2d2d2d;          /* Theme::Color::Border */
+    min-height: 56px;
+    max-height: 56px;
+}
+
+/* CANCEL — ghost style: transparent bg, structural border, muted text.
+   Low visual weight; it is the exit path, not the primary action. */
+QPushButton#batchEditCancelBtn {
+    background-color: transparent;
+    color: #5a5a5a;                          /* Theme::Color::Text3 */
+    font-size: 12pt;                         /* Theme::Font::Caption */
+    font-family: "Figtree", "Segoe UI", sans-serif;
+    font-weight: 500;
+    padding: 8px 16px;                       /* ButtonPadV × ButtonPadH */
+    border: 1px solid #2d2d2d;              /* Theme::Color::Border */
+    border-radius: 1px;
+}
+
+QPushButton#batchEditCancelBtn:hover {
+    background-color: #2a2a2a;              /* Theme::Color::Bg2 */
+    color: #808080;                          /* Theme::Color::Text2 */
+    border-color: #505050;                   /* Theme::Color::BorderHov */
+}
+
+QPushButton#batchEditCancelBtn:pressed {
+    background-color: #222222;
+    color: #d8d8d8;
+    border-color: #505050;
+}
+
+/* APPLY — accent style: accent text, accent-wash border.
+   Primary action. Mirrors exportConfirmBtn precisely. */
+QPushButton#batchEditApplyBtn {
+    background-color: #2a2a2a;              /* Theme::Color::Bg2 */
+    color: #ff764d;                          /* Theme::Color::Accent */
+    font-size: 12pt;                         /* Theme::Font::Caption */
+    font-family: "Figtree", "Segoe UI", sans-serif;
+    font-weight: 500;
+    padding: 8px 24px;
+    border: 1px solid #4a2a22;              /* Theme::Color::AccentBg */
+    border-radius: 1px;
+}
+
+QPushButton#batchEditApplyBtn:hover {
+    background-color: #4a2a22;              /* Theme::Color::AccentBg */
+    color: #ff764d;
+    border-color: #5a3228;                   /* Theme::Color::RowSelHov */
+}
+
+QPushButton#batchEditApplyBtn:pressed {
+    background-color: #3a221a;
+    color: #ff764d;
+}
+
+QPushButton#batchEditApplyBtn:disabled {
+    background-color: #222222;
+    color: #8a4a3a;
+    border-color: #2a1a12;
+}
+
+/* =============================================================================
+   MISSING FILE RELOCATOR DIALOG  (#missingFilesDialog)
+   Fixed 640×480, standard (native title bar). Non-frameless — the native chrome
+   is appropriate here because this is a diagnostic / maintenance tool, not a
+   transient operational overlay. The user may need to drag it aside.
+
+   Structure: header row / scrollable track list / footer with Close + Remove All.
+   Broken paths are rendered in a muted amber tone — a warning, not an error.
+   The path is already missing; it is a state to be resolved, not a failure.
+   ============================================================================= */
+
+QDialog#missingFilesDialog {
+    background-color: #1a1a1a;              /* Theme::Color::Bg */
+    border: 1px solid #2d2d2d;              /* Theme::Color::Border */
+    border-radius: 1px;
+    min-width: 640px;
+    max-width: 640px;
+    min-height: 480px;
+    max-height: 480px;
+}
+
+/* ── Header row ─────────────────────────────────────────────────────────────
+   Contains "MISSING FILES" title label (left) + count badge (right).
+   The count badge uses the same muted monospace register as #searchResultBadge.
+   No pulsing dot — this is a static diagnostic view, not an active process.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+QWidget#missingFilesHeader {
+    background-color: #1a1a1a;              /* Theme::Color::Bg */
+    border-bottom: 1px solid #2d2d2d;       /* Theme::Color::Border */
+    min-height: 48px;
+    max-height: 48px;
+}
+
+/* "MISSING FILES" — same typographic signature as analysisTitle / batchEditTitle */
+QLabel#missingFilesTitle {
+    font-size: 11pt;                         /* Theme::Font::Small */
+    font-family: "Consolas", "Courier New", monospace;
+    font-weight: 400;
+    letter-spacing: 3px;
+    color: #5a5a5a;                          /* Theme::Color::Text3 */
+    background-color: transparent;
+}
+
+/* Count badge — "N missing" — amber tint signals a resolvable issue.
+   Amber is the correct semantic here: not a hard failure (red), but a
+   condition that requires attention. Kept small so it reads as metadata. */
+QLabel#missingFilesCount {
+    font-size: 11pt;                         /* Theme::Font::Small */
+    font-family: "Consolas", "Courier New", monospace;
+    font-weight: 400;
+    color: #e8a84a;                          /* Theme::Color::Amber */
+    background-color: transparent;
+    padding: 0px;
+}
+
+/* ── Track table ─────────────────────────────────────────────────────────────
+   QTableView or QListWidget showing: TITLE | ARTIST | PATH (last column, elided).
+   The table fills the body area (stretch: 1). Standard table QSS applies.
+   The path column gets a custom delegate that renders broken paths in amber;
+   #missingFilesTable gets the scoped override below to reinforce the amber path
+   color via QSS where delegate styling isn't applied.
+
+   Per-row action buttons (Locate / Remove) are inserted via a custom delegate
+   in the last visible column, not as standalone widget children of the table.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+QTableView#missingFilesTable {
+    background-color: #1a1a1a;              /* Theme::Color::Bg */
+    alternate-background-color: #1a1a1a;
+    color: #d8d8d8;                          /* Theme::Color::Text */
+    border: none;
+    outline: none;
+    gridline-color: #252525;
+    selection-background-color: #4a2a22;    /* Theme::Color::AccentBg */
+    selection-color: #d8d8d8;
+}
+
+QTableView#missingFilesTable::item {
+    padding: 0px;
+    min-height: 44px;
+}
+
+QTableView#missingFilesTable::item:hover {
+    background-color: #252525;              /* Theme::Color::RowHov */
+}
+
+QTableView#missingFilesTable::item:selected {
+    background-color: #4a2a22;             /* Theme::Color::AccentBg */
+    color: #d8d8d8;
+}
+
+QTableView#missingFilesTable::item:selected:hover {
+    background-color: #5a3228;             /* Theme::Color::RowSelHov */
+}
+
+/* ── Per-row action buttons ─────────────────────────────────────────────────
+   "Locate..." — opens QFileDialog to re-link the track to a new path.
+   "Remove"    — removes the DB record after confirmation.
+   Both are compact inline buttons; rendered in a delegate-painted cell or
+   inserted into the table via a persistent editor delegate.
+
+   Locate: standard secondary style (same weight as exportBrowseBtn).
+   Remove: danger style, low visual weight to avoid accidental clicks.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+QPushButton#missingLocateBtn {
+    background-color: transparent;
+    color: #808080;                          /* Theme::Color::Text2 */
+    font-size: 11pt;                         /* Theme::Font::Small */
+    font-family: "Consolas", "Courier New", monospace;
+    font-weight: 400;
+    padding: 4px 12px;                       /* PadXs × PadMd */
+    border: 1px solid #2d2d2d;              /* Theme::Color::Border */
+    border-radius: 1px;
+}
+
+QPushButton#missingLocateBtn:hover {
+    background-color: #2a2a2a;              /* Theme::Color::Bg2 */
+    color: #d8d8d8;                          /* Theme::Color::Text */
+    border-color: #505050;                   /* Theme::Color::BorderHov */
+}
+
+QPushButton#missingLocateBtn:pressed {
+    background-color: #222222;
+    color: #d8d8d8;
+    border-color: #505050;
+}
+
+/* Remove button — danger style, deliberately subdued.
+   Color matches the existing .danger QPushButton pattern.
+   Low saturation background keeps it from drawing the eye aggressively. */
+QPushButton#missingRemoveBtn {
+    background-color: transparent;
+    color: #e07070;                          /* Theme::Color::Red */
+    font-size: 11pt;                         /* Theme::Font::Small */
+    font-family: "Consolas", "Courier New", monospace;
+    font-weight: 400;
+    padding: 4px 12px;
+    border: 1px solid #3a1e1e;              /* Theme::Color::RedBg — subdued border */
+    border-radius: 1px;
+}
+
+QPushButton#missingRemoveBtn:hover {
+    background-color: #3a1e1e;              /* Theme::Color::RedBg */
+    color: #e07070;
+    border-color: #5a2828;
+}
+
+QPushButton#missingRemoveBtn:pressed {
+    background-color: #2d1818;
+    color: #e07070;
+}
+
+/* ── Footer ──────────────────────────────────────────────────────────────────
+   "Close" right-aligned. "Remove All" far left (intentionally separated from
+   Close to prevent accidental trigger). Remove All is danger style with full
+   bg fill on hover to signal destructive consequence.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+QWidget#missingFilesFooter {
+    background-color: #1a1a1a;              /* Theme::Color::Bg */
+    border-top: 1px solid #2d2d2d;          /* Theme::Color::Border */
+    min-height: 56px;
+    max-height: 56px;
+}
+
+/* "Remove All" — danger style, high-weight warning.
+   Full red wash on hover to make the destructive intent unmistakable.
+   Placed at the far left of the footer; physical separation from Close is
+   itself a safety mechanism. */
+QPushButton#missingRemoveAllBtn {
+    background-color: #2a2a2a;              /* Theme::Color::Bg2 */
+    color: #e07070;                          /* Theme::Color::Red */
+    font-size: 12pt;                         /* Theme::Font::Caption */
+    font-family: "Figtree", "Segoe UI", sans-serif;
+    font-weight: 500;
+    padding: 8px 16px;                       /* ButtonPadV × ButtonPadH */
+    border: 1px solid #3a1e1e;              /* Theme::Color::RedBg */
+    border-radius: 1px;
+}
+
+QPushButton#missingRemoveAllBtn:hover {
+    background-color: #3a1e1e;              /* Theme::Color::RedBg */
+    color: #e07070;
+    border-color: #5a2828;
+}
+
+QPushButton#missingRemoveAllBtn:pressed {
+    background-color: #2d1818;
+    color: #e07070;
+}
+
+QPushButton#missingRemoveAllBtn:disabled {
+    background-color: #222222;
+    color: #5a3030;
+    border-color: #251010;
+}
+
+/* Close button — standard secondary/ghost style. The terminal action.
+   Same pattern as exportBackBtn — transparent bg, structural border. */
+QPushButton#missingCloseBtn {
+    background-color: transparent;
+    color: #5a5a5a;                          /* Theme::Color::Text3 */
+    font-size: 12pt;                         /* Theme::Font::Caption */
+    font-family: "Figtree", "Segoe UI", sans-serif;
+    font-weight: 500;
+    padding: 8px 16px;
+    border: 1px solid #2d2d2d;              /* Theme::Color::Border */
+    border-radius: 1px;
+}
+
+QPushButton#missingCloseBtn:hover {
+    background-color: #2a2a2a;
+    color: #808080;
+    border-color: #505050;
+}
+
+QPushButton#missingCloseBtn:pressed {
+    background-color: #222222;
+    color: #d8d8d8;
+    border-color: #505050;
 }

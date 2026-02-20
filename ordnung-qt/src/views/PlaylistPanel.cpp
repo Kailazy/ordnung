@@ -1,5 +1,6 @@
 #include "PlaylistPanel.h"
 #include "models/PlaylistModel.h"
+#include "style/Theme.h"
 
 #include <QPainter>
 #include <QPainterPath>
@@ -50,14 +51,14 @@ void ImportZone::paintEvent(QPaintEvent*)
     QColor textColor;
 
     if (m_dragActive) {
-        borderColor = QColor(0x4f, 0xc3, 0xf7);  // active: accent
-        textColor   = QColor(0x4f, 0xc3, 0xf7);
+        borderColor = QColor(Theme::Color::Accent);
+        textColor   = QColor(Theme::Color::Accent);
     } else if (m_hovered) {
-        borderColor = QColor(0x44, 0x44, 0x44);  // hover: medium
-        textColor   = QColor(0x77, 0x77, 0x77);
+        borderColor = QColor(Theme::Color::BorderHov);
+        textColor   = QColor(Theme::Color::Text2);
     } else {
-        borderColor = QColor(0x1e, 0x1e, 0x1e);  // idle: barely visible
-        textColor   = QColor(0x44, 0x44, 0x44);
+        borderColor = QColor(Theme::Color::Border);
+        textColor   = QColor(Theme::Color::Text3);
     }
 
     // Draw dashed border rounded rect
@@ -145,36 +146,37 @@ void PlaylistItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
 
     // Row background
     if (selected && hovered) {
-        painter->fillRect(option.rect, QColor(0x1c, 0x1c, 0x1c));
+        painter->fillRect(option.rect, QColor(Theme::Color::Bg3));
     } else if (selected) {
-        painter->fillRect(option.rect, QColor(0x15, 0x15, 0x15));
+        painter->fillRect(option.rect, QColor(Theme::Color::Bg2));
     } else if (hovered) {
-        painter->fillRect(option.rect, QColor(0x15, 0x15, 0x15));
+        painter->fillRect(option.rect, QColor(Theme::Color::Bg2));
     } else {
         painter->fillRect(option.rect, Qt::transparent);
     }
 
     // Left accent bar for selected
     if (selected) {
-        painter->fillRect(QRect(option.rect.left(), option.rect.top(), 2, option.rect.height()),
-                          QColor(0x4f, 0xc3, 0xf7));
+        painter->fillRect(QRect(option.rect.left(), option.rect.top(), 3, option.rect.height()),
+                          QColor(Theme::Color::Accent));
     }
 
     // Name
     const QString name  = index.data(Qt::DisplayRole).toString();
     const int     total = index.data(PlaylistModel::TrackCountRole).toInt();
 
-    const QRect contentRect = option.rect.adjusted(selected ? 14 : 12, 0, -44, 0);
+    const QRect contentRect = option.rect.adjusted(selected ? 15 : 12, 0, -44, 0);
 
     QFont nameFont = QApplication::font();
-    nameFont.setPointSize(17);
+    nameFont.setPointSize(Theme::Font::Body);
     QFontMetrics nameFm(nameFont);
 
     QFont metaFont = QApplication::font();
-    metaFont.setPointSize(15);
+    metaFont.setPointSize(Theme::Font::Secondary);
     QFontMetrics metaFm(metaFont);
 
-    const int totalH = nameFm.height() + 3 + metaFm.height();
+    const int lineGap = Theme::Layout::SpaceSm;  // 8px between name and meta
+    const int totalH = nameFm.height() + lineGap + metaFm.height();
     const int startY = option.rect.top() + (option.rect.height() - totalH) / 2;
 
     // Format counts for meta line
@@ -194,15 +196,15 @@ void PlaylistItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
 
     // Draw name
     painter->setFont(nameFont);
-    painter->setPen(selected ? QColor(0xd0, 0xd0, 0xd0) : QColor(0xd0, 0xd0, 0xd0));
+    painter->setPen(QColor(Theme::Color::Text));
     painter->drawText(QRect(contentRect.left(), startY, contentRect.width(), nameFm.height()),
                       Qt::AlignLeft | Qt::AlignTop,
                       nameFm.elidedText(name, Qt::ElideRight, contentRect.width()));
 
     // Draw meta
-    const int metaY = startY + nameFm.height() + 3;
+    const int metaY = startY + nameFm.height() + lineGap;
     painter->setFont(metaFont);
-    painter->setPen(selected ? QColor(0x77, 0x77, 0x77) : QColor(0x44, 0x44, 0x44));
+    painter->setPen(selected ? QColor(Theme::Color::Text2) : QColor(Theme::Color::Text3));
     painter->drawText(QRect(contentRect.left(), metaY, contentRect.width(), metaFm.height()),
                       Qt::AlignLeft | Qt::AlignTop,
                       metaFm.elidedText(metaText, Qt::ElideRight, contentRect.width()));
@@ -211,14 +213,14 @@ void PlaylistItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
     if (hovered || selected) {
         const QRect delRect = deleteRect(option.rect);
         QFont delFont = QApplication::font();
-        delFont.setPointSize(17);
+        delFont.setPointSize(Theme::Font::Body);
         painter->setFont(delFont);
 
         QColor delColor;
         if (m_deleteHovered && hovered) {
-            delColor = QColor(0xe5, 0x73, 0x73);
+            delColor = QColor(Theme::Color::Red);
         } else if (selected || hovered) {
-            delColor = QColor(0x44, 0x44, 0x44);
+            delColor = QColor(Theme::Color::Text3);
         } else {
             delColor = Qt::transparent;
         }
@@ -231,7 +233,7 @@ void PlaylistItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
 
 QSize PlaylistItemDelegate::sizeHint(const QStyleOptionViewItem&, const QModelIndex&) const
 {
-    return QSize(0, 52);
+    return QSize(0, Theme::Layout::PlaylistRowH);
 }
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -243,7 +245,7 @@ PlaylistPanel::PlaylistPanel(PlaylistModel* model, QWidget* parent)
     , m_model(model)
 {
     setObjectName(QStringLiteral("playlistPanel"));
-    setFixedWidth(320);
+    setFixedWidth(Theme::Layout::PlaylistW);
 
     auto* layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -253,8 +255,9 @@ PlaylistPanel::PlaylistPanel(PlaylistModel* model, QWidget* parent)
     auto* header = new QWidget(this);
     header->setObjectName(QStringLiteral("playlistHeader"));
     auto* headerLayout = new QVBoxLayout(header);
-    headerLayout->setContentsMargins(23, 23, 23, 16);
-    headerLayout->setSpacing(12);
+    headerLayout->setContentsMargins(Theme::Layout::Pad, Theme::Layout::Pad,
+                                    Theme::Layout::Pad, Theme::Layout::SpaceLg);
+    headerLayout->setSpacing(Theme::Layout::SpaceMd);  // 12px between title and import zone
 
     auto* titleLabel = new QLabel(QStringLiteral("playlists"), header);
     titleLabel->setObjectName(QStringLiteral("playlistTitle"));
@@ -288,8 +291,8 @@ PlaylistPanel::PlaylistPanel(PlaylistModel* model, QWidget* parent)
 
     // Override QPalette selection color
     QPalette p = m_listView->palette();
-    p.setColor(QPalette::Highlight,     QColor(0x15, 0x15, 0x15));
-    p.setColor(QPalette::HighlightedText, QColor(0xd0, 0xd0, 0xd0));
+    p.setColor(QPalette::Highlight,     QColor(Theme::Color::Bg2));
+    p.setColor(QPalette::HighlightedText, QColor(Theme::Color::Text));
     m_listView->setPalette(p);
 
     connect(m_listView, &QListView::clicked, this, &PlaylistPanel::onItemClicked);

@@ -1,74 +1,102 @@
 #pragma once
 
 #include <QWidget>
-#include <QStringList>
 #include <QVariantMap>
+#include <QFutureWatcher>
+#include <QTimer>
+#include "core/Track.h"
 
-class PlaylistModel;
 class TrackModel;
 class Database;
 class QUndoStack;
 class QLineEdit;
-class QComboBox;
 class QPushButton;
 class QLabel;
-class QSplitter;
-class QHBoxLayout;
-class PlaylistPanel;
+class QAction;
+class CollectionTreePanel;
 class TrackTableView;
 class TrackDetailPanel;
+class PlayerBar;
+class ExportWizard;
+class AudioAnalyzer;
+class AnalysisProgressDialog;
+class BatchEditDialog;
+class MissingFilesDialog;
 
 // LibraryView — the Library tab content.
-// Owns the toolbar (search, bulk format, undo), genre bar, playlist panel,
-// track table, and track detail panel.
+// Owns the toolbar (search, undo, folder button), the CollectionTreePanel
+// left pane, track table, track detail panel, and audio player bar.
 class LibraryView : public QWidget
 {
     Q_OBJECT
 public:
-    explicit LibraryView(PlaylistModel* playlists, TrackModel* tracks,
-                         Database* db, QUndoStack* undoStack,
-                         QWidget* parent = nullptr);
+    explicit LibraryView(TrackModel* tracks, Database* db,
+                         QUndoStack* undoStack, QWidget* parent = nullptr);
 
-    // Load tracks for a playlist and rebuild the genre bar.
-    void loadPlaylist(long long playlistId);
-
-    // Reload the playlist sidebar (call after import or delete).
-    void reloadPlaylists();
+    // Set and scan the library folder (call on startup restore).
+    void setLibraryFolder(const QString& path);
 
 signals:
-    void importRequested(const QStringList& paths);
-    void deletePlaylistRequested(long long id);
+    void libraryFolderChanged(const QString& path);
 
 private slots:
+    void onBrowseFolderClicked();
+    void onCollectionSelected();
     void onPlaylistSelected(long long id);
-    void onBulkApply();
+    void onSmartPlaylistSelected(const QString& key);
+    void onImportRequested(const QStringList& filePaths);
+    void onCreatePlaylistRequested();
+    void onDeletePlaylistRequested(long long id);
     void onTrackExpanded(const QVariantMap& data);
     void onTrackCollapsed();
     void onUndoAvailable(bool available);
+    void onPlayRequested(const QString& filePath,
+                         const QString& title,
+                         const QString& artist);
+    void onScanFinished();
+    void onTrackAnalyzed(const Track& updated);
+    void onAutoAnalysisFinished();
+    void onExportClicked();
+    void onAnalyzeClicked();
+    void onExportPlaylistRequested(long long playlistId);
+    void onEditSelectedClicked();
+    void onFindMissingClicked();
+    void onSelectionChanged();
 
 private:
-    void buildGenreBar(const QStringList& genres);
+    void loadAndScan();
+    void rescan();
+    void importPlaylistFile(const QString& filePath);
     void updateStats();
 
-    PlaylistModel*  m_playlistModel;
-    TrackModel*     m_trackModel;
-    Database*       m_db;
-    QUndoStack*     m_undoStack;
-    long long       m_activePlaylistId = -1;
+    TrackModel*  m_trackModel;
+    Database*    m_db;
+    QUndoStack*  m_undoStack;
+    QString      m_libraryFolder;
 
     // Toolbar
+    QPushButton* m_folderBtn   = nullptr;  // shows folder name, click to browse
     QLineEdit*   m_searchEdit  = nullptr;
-    QComboBox*   m_formatCombo = nullptr;
-    QPushButton* m_applyBtn    = nullptr;
     QPushButton* m_undoBtn     = nullptr;
-    QLabel*      m_statsLabel  = nullptr;
-
-    // Genre bar
-    QHBoxLayout* m_genreBarLayout = nullptr;
-    QString      m_activeGenre;
+    QPushButton* m_exportBtn   = nullptr;
+    QPushButton* m_analyzeBtn      = nullptr;
+    QPushButton* m_editSelectedBtn = nullptr;
+    QPushButton* m_missingBtn      = nullptr;
+    QLabel*      m_searchBadge     = nullptr;
+    QLabel*      m_statsLabel      = nullptr;
 
     // Panels
-    PlaylistPanel*    m_playlistPanel = nullptr;
-    TrackTableView*   m_trackTable    = nullptr;
-    TrackDetailPanel* m_detailPanel   = nullptr;
+    CollectionTreePanel* m_collectionPanel = nullptr;
+    TrackTableView*      m_trackTable      = nullptr;
+    TrackDetailPanel*    m_detailPanel     = nullptr;
+    PlayerBar*           m_playerBar       = nullptr;
+
+    // Async scan
+    QFutureWatcher<QVector<Track>>* m_scanWatcher = nullptr;
+
+    // Background metadata analysis (auto-started after fast scan)
+    AudioAnalyzer* m_analyzer      = nullptr;
+    QTimer*        m_analyzeTimer  = nullptr;  // forces viewport repaints while analyzing
+
+    long long m_activePlaylistId = -1;
 };

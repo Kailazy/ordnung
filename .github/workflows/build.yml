@@ -10,10 +10,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true
       - uses: jurplel/install-qt-action@v3
         with:
           version: '6.7.0'
-          modules: 'qtsvg'
       - run: cmake -B build -S ordnung-qt -DCMAKE_BUILD_TYPE=Release
       - run: cmake --build build -j$(nproc)
       - uses: actions/upload-artifact@v4
@@ -23,28 +24,59 @@ jobs:
 
   build-windows:
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
     steps:
       - uses: actions/checkout@v4
-      - uses: jurplel/install-qt-action@v3
         with:
-          version: '6.7.0'
-          modules: 'qtsvg'
-      - run: cmake -B build -S ordnung-qt -G "Visual Studio 17 2022" -A x64
-      - run: cmake --build build --config Release
-      - run: windeployqt build\Release\Ordnung.exe
+          lfs: true
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          # Core build tools + Qt. Essentia/ONNX come from third_party/ (committed
+          # via LFS). We do NOT list essentia:p or onnxruntime:p here because those
+          # MSYS2 packages may not exist; the pre-built DLLs in third_party/ are used
+          # instead (see CMakeLists.txt ORDNUNG_HAVE_ESSENTIA logic).
+          pacboy: >-
+            cmake:p
+            ninja:p
+            qt6-base:p
+            qt6-svg:p
+            qt6-multimedia:p
+            qt6-tools:p
+      - name: Configure
+        run: cmake -B build -S ordnung-qt -G Ninja -DCMAKE_BUILD_TYPE=Release
+      - name: Build
+        run: cmake --build build --parallel
+      - name: Collect runtime DLLs
+        run: |
+          mkdir -p build/dist
+          cp build/Ordnung.exe build/dist/
+          # Copy all MINGW64 runtime DLLs the binary depends on
+          ldd build/Ordnung.exe | grep -i mingw | awk '{print $3}' | \
+            xargs -I{} cp -n "{}" build/dist/ || true
+          # Copy Qt platform plugin
+          mkdir -p build/dist/platforms
+          cp /mingw64/share/qt6/plugins/platforms/qwindows.dll build/dist/platforms/ || true
+          # third_party/ DLLs are already copied beside Ordnung.exe by POST_BUILD
+          # cmake commands; collect any that landed in build/ into dist/
+          cp build/*.dll build/dist/ 2>/dev/null || true
       - uses: actions/upload-artifact@v4
         with:
           name: Ordnung-windows
-          path: build\Release\
+          path: build/dist/
 
   build-macos:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          lfs: true
       - uses: jurplel/install-qt-action@v3
         with:
           version: '6.7.0'
-          modules: 'qtsvg'
       - run: cmake -B build -S ordnung-qt -DCMAKE_BUILD_TYPE=Release
       - run: cmake --build build -j$(nproc)
       - run: macdeployqt build/Ordnung.app -dmg

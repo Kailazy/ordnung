@@ -1,14 +1,9 @@
 #pragma once
 
 #include <QStyledItemDelegate>
-#include <QColor>
-#include <QMap>
 
-// FormatDelegate paints format badges (FLAC, AIFF, MP3, etc.) and the
-// title+artist two-line cell for column ColTitle.
-// It also paints the expand chevron in column ColChevron.
-//
-// All painting is done via QPainter — no embedded widgets.
+// Thin delegate: forwards cell painting to LibraryTableRowPainter (row-centric
+// module). All cells are editable (double-click, Enter to confirm).
 class FormatDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
@@ -21,17 +16,9 @@ public:
     QSize sizeHint(const QStyleOptionViewItem& option,
                    const QModelIndex& index) const override;
 
-    // For title+artist column, we need the artist via a secondary role.
-    // TrackModel provides it at Qt::UserRole + 4.
-    static constexpr int ArtistRole = Qt::UserRole + 4;
-
-private:
-    struct BadgeColors {
-        QColor text;
-        QColor bg;
-    };
-
-    static const QMap<QString, BadgeColors>& colorMap();
-    static BadgeColors colorsForFormat(const QString& format);
-    static void fillBackground(QPainter* p, const QStyleOptionViewItem& opt);
+    QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& option,
+                          const QModelIndex& index) const override;
+    void setEditorData(QWidget* editor, const QModelIndex& index) const override;
+    void setModelData(QWidget* editor, QAbstractItemModel* model,
+                      const QModelIndex& index) const override;
 };

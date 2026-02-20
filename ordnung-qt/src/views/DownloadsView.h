@@ -2,6 +2,7 @@
 
 #include <QWidget>
 #include <QString>
+#include <QVector>
 
 #include "services/Database.h"
 #include "core/ConversionJob.h"
@@ -13,6 +14,7 @@ class QLabel;
 class QPushButton;
 class QPlainTextEdit;
 class QTimer;
+class QResizeEvent;
 
 // FolderNode — a clickable rounded card displaying a watch folder path.
 // Hover/press states handled via QSS (#folderNodeSrc / #folderNodeOut).
@@ -72,9 +74,14 @@ private slots:
     void onConvertAllClicked();
     void onConvertRequested(const QModelIndex& index);
     void onTableContextMenu(const QPoint& pos);
+    void onDownloadsSectionResized(int logicalIndex, int oldSize, int newSize);
+
+protected:
+    void resizeEvent(QResizeEvent* event) override;
 
 private:
     void triggerLogPulse();
+    void applyDownloadsColumnWidths();
 
     DownloadsModel* m_model;
     StatusDelegate* m_delegate;
@@ -86,6 +93,8 @@ private:
     QPushButton* m_convertAllBtn = nullptr;
     QLabel*      m_busyLabel     = nullptr;
 
+    QVector<int>    m_downloadsColumnWeights;
+    QVector<int>    m_downloadsColumnMinWidths;
     QTableView*     m_tableView = nullptr;
     QPlainTextEdit* m_logEdit   = nullptr;
     QLabel*         m_logDot    = nullptr;

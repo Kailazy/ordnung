@@ -24,7 +24,8 @@ public:
 
     ImportResult parse(const QString& filePath);
 
+    static QString makeMatchKey(const QString& artist, const QString& title);
+
 private:
     Track parseLine(const QStringList& fields, const QStringList& headers);
-    static QString makeMatchKey(const QString& artist, const QString& title);
 };

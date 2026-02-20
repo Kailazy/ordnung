@@ -2,6 +2,7 @@
 
 #include "models/DownloadsModel.h"
 #include "delegates/StatusDelegate.h"
+#include "style/Theme.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -25,6 +26,7 @@
 #include <QFrame>
 #include <QSvgRenderer>
 #include <QPixmap>
+#include <QFontMetrics>
 #include <QPainter>
 
 // ── FolderNode ────────────────────────────────────────────────────────────────
@@ -41,8 +43,9 @@ FolderNode::FolderNode(const QString& objectId, const QString& roleLabel, QWidge
 
     auto* layout = new QVBoxLayout(this);
     layout->setAlignment(Qt::AlignCenter);
-    layout->setSpacing(10);
-    layout->setContentsMargins(32, 26, 32, 22);
+    layout->setSpacing(Theme::Layout::GapMd);
+    layout->setContentsMargins(Theme::Layout::CardPadH, Theme::Layout::CardPadV,
+                              Theme::Layout::CardPadH, Theme::Layout::CardPadVB);
 
     auto* roleLbl = new QLabel(roleLabel.toUpper(), this);
     roleLbl->setObjectName("folderNodeLabel");
@@ -103,7 +106,7 @@ DownloadsView::DownloadsView(DownloadsModel* model, QWidget* parent)
     m_outNode = new FolderNode("folderNodeOut", "aiff output", this);
 
     static const char arrowSvg[] =
-        "<svg viewBox='0 0 48 24' fill='none' stroke='#444444' stroke-width='2' "
+        "<svg viewBox='0 0 48 24' fill='none' stroke='#505050' stroke-width='2' "
         "stroke-linecap='round' stroke-linejoin='round'>"
         "<line x1='2' y1='12' x2='38' y2='12'/>"
         "<polyline points='32,6 38,12 32,18'/>"
@@ -119,12 +122,12 @@ DownloadsView::DownloadsView(DownloadsModel* model, QWidget* parent)
     }
     auto* arrowLabel = new QLabel(this);
     arrowLabel->setPixmap(arrowPx);
-    arrowLabel->setContentsMargins(10, 0, 10, 0);
+    arrowLabel->setContentsMargins(Theme::Layout::InputPadH, 0, Theme::Layout::InputPadH, 0);
 
     auto* folderFlow = new QWidget(this);
     folderFlow->setObjectName("folderFlow");
     auto* flowLayout = new QHBoxLayout(folderFlow);
-    flowLayout->setContentsMargins(0, 24, 0, 12);
+    flowLayout->setContentsMargins(0, Theme::Layout::PadXl, 0, Theme::Layout::ContentPadV);
     flowLayout->setAlignment(Qt::AlignHCenter);
     flowLayout->setSpacing(0);
     flowLayout->addWidget(m_srcNode);
@@ -144,9 +147,9 @@ DownloadsView::DownloadsView(DownloadsModel* model, QWidget* parent)
 
     auto* actionBar = new QWidget(this);
     auto* actionLayout = new QHBoxLayout(actionBar);
-    actionLayout->setContentsMargins(0, 0, 0, 16);
+    actionLayout->setContentsMargins(0, 0, 0, Theme::Layout::PadLg);
     actionLayout->setAlignment(Qt::AlignHCenter);
-    actionLayout->setSpacing(12);
+    actionLayout->setSpacing(Theme::Layout::GapMd);
     actionLayout->addWidget(m_saveBtn);
     actionLayout->addWidget(m_scanBtn);
     actionLayout->addWidget(m_convertAllBtn);
@@ -164,25 +167,33 @@ DownloadsView::DownloadsView(DownloadsModel* model, QWidget* parent)
     m_tableView->setSelectionMode(QAbstractItemView::SingleSelection);
     m_tableView->setContextMenuPolicy(Qt::CustomContextMenu);
     m_tableView->verticalHeader()->hide();
-    m_tableView->verticalHeader()->setDefaultSectionSize(46);
+    m_tableView->verticalHeader()->setDefaultSectionSize(Theme::Layout::DownloadRowH);
     m_tableView->setHorizontalScrollMode(QAbstractItemView::ScrollPerPixel);
     m_tableView->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
 
+    m_downloadsColumnWeights = { 400, 80, 80, 135, 40 };
+    m_downloadsColumnMinWidths.resize(DownloadsModel::ColCount);
+    {
+        const QFontMetrics fm(m_tableView->horizontalHeader()->font());
+        const int pad = 12;
+        for (int c = 0; c < DownloadsModel::ColCount; ++c) {
+            const QString text = m_model->headerData(c, Qt::Horizontal, Qt::DisplayRole).toString();
+            const int textW = text.isEmpty() ? 24 : fm.horizontalAdvance(text);
+            m_downloadsColumnMinWidths[c] = textW + pad;
+        }
+    }
     auto* hdr = m_tableView->horizontalHeader();
-    hdr->setSectionResizeMode(DownloadsModel::ColFilename, QHeaderView::Stretch);
-    hdr->setSectionResizeMode(DownloadsModel::ColExt,      QHeaderView::Fixed);
-    hdr->setSectionResizeMode(DownloadsModel::ColSize,     QHeaderView::Fixed);
-    hdr->setSectionResizeMode(DownloadsModel::ColStatus,   QHeaderView::Fixed);
-    hdr->setSectionResizeMode(DownloadsModel::ColAction,   QHeaderView::Fixed);
-    m_tableView->setColumnWidth(DownloadsModel::ColExt,     80);
-    m_tableView->setColumnWidth(DownloadsModel::ColSize,    80);
-    m_tableView->setColumnWidth(DownloadsModel::ColStatus, 135);
-    m_tableView->setColumnWidth(DownloadsModel::ColAction,  40);
+    for (int c = 0; c < DownloadsModel::ColCount; ++c) {
+        hdr->setSectionResizeMode(c, QHeaderView::Interactive);
+        hdr->setMinimumSectionSize(m_downloadsColumnMinWidths[c]);
+    }
+    connect(hdr, &QHeaderView::sectionResized, this, &DownloadsView::onDownloadsSectionResized);
+    applyDownloadsColumnWidths();
 
     // ── Activity log ─────────────────────────────────────────────────────────
     auto* logHeader = new QWidget(this);
     logHeader->setObjectName("activityLogHeader");
-    logHeader->setFixedHeight(32);
+    logHeader->setFixedHeight(Theme::Layout::HeaderH);
 
     auto* logTitle = new QLabel("activity log", logHeader);
     logTitle->setObjectName("activityLogTitle");
@@ -199,8 +210,8 @@ DownloadsView::DownloadsView(DownloadsModel* model, QWidget* parent)
     m_logDot->setFixedSize(7, 7);
 
     auto* logHeaderLayout = new QHBoxLayout(logHeader);
-    logHeaderLayout->setContentsMargins(28, 0, 28, 0);
-    logHeaderLayout->setSpacing(9);
+    logHeaderLayout->setContentsMargins(Theme::Layout::ContentPadH, 0, Theme::Layout::ContentPadH, 0);
+    logHeaderLayout->setSpacing(Theme::Layout::GapSm);
     logHeaderLayout->addWidget(logTitle);
     logHeaderLayout->addWidget(m_logDot);
     logHeaderLayout->addStretch();
@@ -229,7 +240,8 @@ DownloadsView::DownloadsView(DownloadsModel* model, QWidget* parent)
     m_logDotTimer = new QTimer(this);
     m_logDotTimer->setSingleShot(true);
     connect(m_logDotTimer, &QTimer::timeout, this, [this] {
-        m_logDot->setStyleSheet("background-color: #444444; border-radius: 3px;");
+        m_logDot->setStyleSheet(QString("background-color: %1; border-radius: 0px;")
+            .arg(Theme::Color::Text3));
     });
 
     auto* logSection = new QWidget(this);
@@ -265,6 +277,67 @@ DownloadsView::DownloadsView(DownloadsModel* model, QWidget* parent)
             this, &DownloadsView::onConvertRequested);
     connect(m_tableView, &QTableView::customContextMenuRequested,
             this, &DownloadsView::onTableContextMenu);
+}
+
+void DownloadsView::onDownloadsSectionResized(int logicalIndex, int /*oldSize*/, int newSize)
+{
+    if (!m_tableView || m_downloadsColumnWeights.size() != DownloadsModel::ColCount)
+        return;
+    const int w = m_tableView->viewport()->width();
+    if (w <= 0)
+        return;
+    int total = 0;
+    for (int x : m_downloadsColumnWeights)
+        total += x;
+    if (total <= 0)
+        return;
+    if (logicalIndex >= 0 && logicalIndex < m_downloadsColumnWeights.size()
+        && logicalIndex < m_downloadsColumnMinWidths.size()) {
+        int newWeight = (newSize * total) / w;
+        const int minW = m_downloadsColumnMinWidths[logicalIndex];
+        const int minWeight = (minW * total) / w;
+        if (minWeight > 0 && newWeight < minWeight)
+            newWeight = minWeight;
+        m_downloadsColumnWeights[logicalIndex] = newWeight;
+    }
+}
+
+void DownloadsView::applyDownloadsColumnWidths()
+{
+    if (!m_tableView || m_downloadsColumnWeights.size() != DownloadsModel::ColCount
+        || m_downloadsColumnMinWidths.size() != DownloadsModel::ColCount)
+        return;
+    const int w = m_tableView->viewport()->width();
+    if (w <= 0)
+        return;
+    int totalMin = 0;
+    int totalWeight = 0;
+    for (int c = 0; c < DownloadsModel::ColCount; ++c) {
+        totalMin += m_downloadsColumnMinWidths[c];
+        totalWeight += m_downloadsColumnWeights[c];
+    }
+    if (totalWeight <= 0)
+        totalWeight = 1;
+    const int remainder = w - totalMin;
+    int assigned = 0;
+    for (int c = 0; c < DownloadsModel::ColCount; ++c) {
+        const int minW = m_downloadsColumnMinWidths[c];
+        int colW;
+        if (c == DownloadsModel::ColCount - 1)
+            colW = remainder < 0 ? qMax(1, w - assigned) : (w - assigned);
+        else if (remainder <= 0)
+            colW = minW;
+        else
+            colW = minW + (remainder * m_downloadsColumnWeights[c]) / totalWeight;
+        m_tableView->setColumnWidth(c, colW);
+        assigned += colW;
+    }
+}
+
+void DownloadsView::resizeEvent(QResizeEvent* event)
+{
+    QWidget::resizeEvent(event);
+    applyDownloadsColumnWidths();
 }
 
 void DownloadsView::setWatchConfig(const WatchConfig& cfg)
@@ -381,6 +454,7 @@ void DownloadsView::onTableContextMenu(const QPoint& pos)
 
 void DownloadsView::triggerLogPulse()
 {
-    m_logDot->setStyleSheet("background-color: #81c784; border-radius: 3px;");
+    m_logDot->setStyleSheet(QString("background-color: %1; border-radius: 0px;")
+        .arg(Theme::Color::Green));
     m_logDotTimer->start(1200);
 }

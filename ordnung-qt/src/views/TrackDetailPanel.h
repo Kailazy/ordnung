@@ -9,6 +9,8 @@
 
 #include "services/Database.h"
 
+class CuePointEditor;
+
 // TrackDetailPanel displays expanded metadata for the selected track.
 // Shown below the TrackTableView when a row is selected.
 // Hidden by default (setVisible(false)).
@@ -27,6 +29,7 @@ public:
 signals:
     void aiffToggled(long long songId, bool newValue);
     void playlistMembershipChanged(long long songId, long long playlistId, bool added);
+    void playRequested(const QString& filePath, const QString& title, const QString& artist);
 
 private slots:
     void onAiffToggled();
@@ -42,6 +45,9 @@ private:
 
     long long  m_songId     = -1;
     bool       m_hasAiff    = false;
+    QString    m_filepath;
+    QString    m_title;
+    QString    m_artist;
 
     // Left column — metadata grid
     QLabel* m_albumKey   = nullptr;
@@ -59,8 +65,12 @@ private:
     QLabel* m_addedKey   = nullptr;
     QLabel* m_addedVal   = nullptr;
 
-    // Right column — AIFF toggle + playlist chips
-    QPushButton* m_aiffBtn      = nullptr;
-    QWidget*     m_chipsWidget  = nullptr;
-    QScrollArea* m_chipsScroll  = nullptr;
+    // Right column — play button, AIFF toggle + playlist chips
+    QPushButton*    m_playBtn      = nullptr;
+    QPushButton*    m_aiffBtn      = nullptr;
+    QWidget*        m_chipsWidget  = nullptr;
+    QScrollArea*    m_chipsScroll  = nullptr;
+
+    // Bottom section — hot cue pads
+    CuePointEditor* m_cueEditor    = nullptr;
 };

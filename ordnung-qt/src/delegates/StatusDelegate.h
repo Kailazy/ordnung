@@ -2,6 +2,7 @@
 
 #include <QStyledItemDelegate>
 #include <QPoint>
+#include "style/Theme.h"
 
 class DownloadsModel;
 
@@ -36,11 +37,7 @@ signals:
     void convertRequested(const QModelIndex& index);
 
 private:
-    struct BadgeColors { QColor text; QColor bg; };
-
-    static BadgeColors colorsForExt(const QString& ext);
-    static BadgeColors colorsForStatus(const QString& status);
-    static void        fillBackground(QPainter* p, const QStyleOptionViewItem& opt);
+    static void fillBackground(QPainter* p, const QStyleOptionViewItem& opt);
 
     int m_hoveredRow = -1;
 };

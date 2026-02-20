@@ -1,5 +1,7 @@
 #include "TrackDetailPanel.h"
+#include "CuePointEditor.h"
 #include "services/Database.h"
+#include "style/Theme.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -50,19 +52,25 @@ TrackDetailPanel::TrackDetailPanel(Database* db, QWidget* parent)
 {
     setObjectName(QStringLiteral("trackDetailPanel"));
     setVisible(false);
-    setMinimumHeight(120);
-    setMaximumHeight(280);
+    setMinimumHeight(Theme::Layout::DetailPanelMinH);
 
-    // Top-level layout: two columns separated by a vertical line
-    auto* outer = new QHBoxLayout(this);
-    outer->setContentsMargins(28, 20, 28, 20);
-    outer->setSpacing(32);
+    // Root: vertical — [metadata row] + [cue points row]
+    auto* root = new QVBoxLayout(this);
+    root->setContentsMargins(0, 0, 0, 0);
+    root->setSpacing(0);
+
+    // ── Metadata row ─────────────────────────────────────────────────────────
+    auto* metaWidget = new QWidget(this);
+    auto* outer = new QHBoxLayout(metaWidget);
+    outer->setContentsMargins(Theme::Layout::PanelPad, Theme::Layout::ContentPadV,
+                              Theme::Layout::PanelPad, Theme::Layout::ContentPadV);
+    outer->setSpacing(Theme::Layout::Pad2Xl);
 
     // ── Left: metadata grid ──────────────────────────────────────────────
     auto* grid = new QGridLayout();
     grid->setContentsMargins(0, 0, 0, 0);
-    grid->setHorizontalSpacing(16);
-    grid->setVerticalSpacing(8);
+    grid->setHorizontalSpacing(Theme::Layout::GapLg);
+    grid->setVerticalSpacing(Theme::Layout::GapSm);
     grid->setColumnMinimumWidth(0, 60);
 
     int row = 0;
@@ -90,10 +98,20 @@ TrackDetailPanel::TrackDetailPanel(Database* db, QWidget* parent)
     sep->setStyleSheet(QStringLiteral("color: #1e1e1e;"));
     outer->addWidget(sep);
 
-    // ── Right: AIFF toggle + playlist chips ────────────────────────────────
+    // ── Right: play button, AIFF toggle + playlist chips ────────────────────
     auto* rightCol = new QVBoxLayout();
     rightCol->setContentsMargins(0, 0, 0, 0);
-    rightCol->setSpacing(12);
+    rightCol->setSpacing(Theme::Layout::GapMd);
+
+    m_playBtn = new QPushButton(QStringLiteral("▶ Play"), this);
+    m_playBtn->setObjectName(QStringLiteral("detailPlayBtn"));
+    m_playBtn->setProperty("btnStyle", "accent");
+    m_playBtn->setCursor(Qt::PointingHandCursor);
+    connect(m_playBtn, &QPushButton::clicked, this, [this] {
+        if (!m_filepath.isEmpty())
+            emit playRequested(m_filepath, m_title, m_artist);
+    });
+    rightCol->addWidget(m_playBtn, 0, Qt::AlignLeft);
 
     m_aiffBtn = new QPushButton(QStringLiteral("no aiff"), this);
     m_aiffBtn->setObjectName(QStringLiteral("aiffToggle"));
@@ -114,17 +132,39 @@ TrackDetailPanel::TrackDetailPanel(Database* db, QWidget* parent)
     m_chipsWidget = new QWidget(m_chipsScroll);
     m_chipsWidget->setLayout(new QVBoxLayout());
     static_cast<QVBoxLayout*>(m_chipsWidget->layout())->setContentsMargins(0,0,0,0);
-    static_cast<QVBoxLayout*>(m_chipsWidget->layout())->setSpacing(4);
+    static_cast<QVBoxLayout*>(m_chipsWidget->layout())->setSpacing(Theme::Layout::GapXs);
     m_chipsScroll->setWidget(m_chipsWidget);
 
     rightCol->addWidget(m_chipsScroll, 1);
     outer->addLayout(rightCol, 1);
+
+    root->addWidget(metaWidget);
+
+    // ── Separator ─────────────────────────────────────────────────────────────
+    auto* hSep = new QWidget(this);
+    hSep->setFixedHeight(1);
+    hSep->setStyleSheet(QString("background-color: %1;").arg(Theme::Color::Border));
+    hSep->setAttribute(Qt::WA_StyledBackground, true);
+    root->addWidget(hSep);
+
+    // ── Cue point row ─────────────────────────────────────────────────────────
+    m_cueEditor = new CuePointEditor(db, this);
+    auto* cueWrapper = new QWidget(this);
+    auto* cueWrapLayout = new QHBoxLayout(cueWrapper);
+    cueWrapLayout->setContentsMargins(Theme::Layout::PanelPad, Theme::Layout::ContentPadV,
+                                      Theme::Layout::PanelPad, Theme::Layout::ContentPadV);
+    cueWrapLayout->addWidget(m_cueEditor);
+    cueWrapLayout->addStretch();
+    root->addWidget(cueWrapper);
 }
 
 void TrackDetailPanel::populate(const QVariantMap& trackData, long long activePlaylistId)
 {
-    m_songId  = trackData.value(QStringLiteral("id")).toLongLong();
-    m_hasAiff = trackData.value(QStringLiteral("has_aiff")).toBool();
+    m_songId   = trackData.value(QStringLiteral("id")).toLongLong();
+    m_hasAiff  = trackData.value(QStringLiteral("has_aiff")).toBool();
+    m_filepath = trackData.value(QStringLiteral("filepath")).toString();
+    m_title    = trackData.value(QStringLiteral("title")).toString();
+    m_artist   = trackData.value(QStringLiteral("artist")).toString();
 
     auto setText = [](QLabel* lbl, const QString& text) {
         lbl->setText(text);
@@ -146,13 +186,13 @@ void TrackDetailPanel::populate(const QVariantMap& trackData, long long activePl
     const double bpm = trackData.value(QStringLiteral("bpm")).toDouble();
     setField(m_bpmKey, m_bpmVal, bpm > 0 ? QString::number(static_cast<int>(bpm)) : QString());
 
-    setField(m_keyKey,    m_keyVal,    trackData.value(QStringLiteral("key_sig")).toString());
+    setField(m_keyKey,    m_keyVal,    trackData.value(QStringLiteral("key")).toString());
     setField(m_timeKey,   m_timeVal,   trackData.value(QStringLiteral("time")).toString());
 
     const int rating = trackData.value(QStringLiteral("rating")).toInt();
     setField(m_ratingKey, m_ratingVal, rating > 0 ? starsString(rating) : QString());
 
-    setField(m_addedKey, m_addedVal, trackData.value(QStringLiteral("date_added")).toString());
+    setField(m_addedKey, m_addedVal, trackData.value(QStringLiteral("added")).toString());
 
     // AIFF toggle button
     m_aiffBtn->setText(m_hasAiff ? QStringLiteral("has aiff ✓") : QStringLiteral("no aiff"));
@@ -163,12 +203,21 @@ void TrackDetailPanel::populate(const QVariantMap& trackData, long long activePl
     // Playlist chips
     buildPlaylistChips(m_songId, activePlaylistId);
 
+    // Cue points
+    m_cueEditor->loadCues(m_songId);
+
+    m_playBtn->setEnabled(!m_filepath.isEmpty());
+
     setVisible(true);
 }
 
 void TrackDetailPanel::clear()
 {
-    m_songId = -1;
+    m_songId   = -1;
+    m_filepath.clear();
+    m_title.clear();
+    m_artist.clear();
+    m_cueEditor->clear();
     setVisible(false);
 }
 

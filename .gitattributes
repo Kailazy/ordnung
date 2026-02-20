@@ -1,0 +1,7 @@
+# Git LFS tracking for third_party binary artifacts
+third_party/**/*.so    filter=lfs diff=lfs merge=lfs -text
+third_party/**/*.so.*  filter=lfs diff=lfs merge=lfs -text
+third_party/**/*.a     filter=lfs diff=lfs merge=lfs -text
+third_party/**/*.dylib filter=lfs diff=lfs merge=lfs -text
+third_party/**/*.dll   filter=lfs diff=lfs merge=lfs -text
+third_party/**/*.lib   filter=lfs diff=lfs merge=lfs -text
