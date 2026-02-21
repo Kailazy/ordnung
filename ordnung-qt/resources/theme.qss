@@ -183,7 +183,7 @@ QLabel#importZone {
     color: #5a5a5a;
     background-color: transparent;
     border: 1px dashed #2d2d2d;
-    border-radius: 2px;
+    border-radius: 1px;
     padding: 16px;
     qproperty-alignment: AlignCenter;
 }
@@ -280,6 +280,8 @@ QHeaderView::section {
     border: none;
     border-right: 1px solid #2d2d2d;
     border-bottom: 1px solid #2d2d2d;
+    min-height: 32px;
+    max-height: 32px;
 }
 
 QHeaderView::section:hover {
@@ -320,7 +322,7 @@ QLineEdit#searchInput {
     font-family: "Figtree", "Segoe UI", sans-serif;
     font-weight: 400;
     border: 1px solid #2d2d2d;
-    border-radius: 2px;
+    border-radius: 1px;
     padding: 8px 16px;
     selection-background-color: #4a2a22;
     selection-color: #d8d8d8;
@@ -778,14 +780,14 @@ QComboBox QAbstractItemView::item:hover {
 
 QScrollBar:vertical {
     background-color: transparent;
-    width: 7px;
+    width: 4px;
     margin: 0px;
 }
 
 QScrollBar::handle:vertical {
     background-color: #353535;
     border-radius: 0px;
-    min-height: 24px;
+    min-height: 20px;
 }
 
 QScrollBar::handle:vertical:hover {
@@ -806,14 +808,14 @@ QScrollBar::sub-page:vertical {
 
 QScrollBar:horizontal {
     background-color: transparent;
-    height: 7px;
+    height: 4px;
     margin: 0px;
 }
 
 QScrollBar::handle:horizontal {
     background-color: #353535;
     border-radius: 0px;
-    min-width: 24px;
+    min-width: 20px;
 }
 
 QScrollBar::handle:horizontal:hover {
@@ -889,7 +891,7 @@ QWidget#folderFlow {
 QWidget#folderNodeSrc {
     background-color: #2a2a2a;
     border: 1px solid #2d2d2d;
-    border-radius: 2px;
+    border-radius: 1px;
     min-width: 190px;
     max-width: 280px;
     padding: 24px 32px 16px 32px;
@@ -904,7 +906,7 @@ QWidget#folderNodeSrc:hover {
 QWidget#folderNodeOut {
     background-color: #2a2a2a;
     border: 1px solid #2d2d2d;
-    border-radius: 2px;
+    border-radius: 1px;
     min-width: 190px;
     max-width: 280px;
     padding: 24px 32px 16px 32px;
@@ -959,7 +961,7 @@ QLabel#converterStatus {
 
 QWidget#trackDetailPanel {
     background-color: #222222;
-    border-top: 1px solid #2d2d2d;
+    border-top: 2px solid #2d2d2d;
     padding: 12px 24px 16px 48px;
 }
 
@@ -1087,7 +1089,7 @@ QMenu::item {
 
 QMenu::item:selected {
     background-color: #4a2a22;
-    color: #d8d8d8;
+    color: #ff764d;
 }
 
 QMenu::item:disabled {
@@ -1166,7 +1168,7 @@ QPushButton#playerPlayBtn {
     color: #d8d8d8;
     font-size: 16pt;
     border: 1px solid #353535;
-    border-radius: 2px;
+    border-radius: 1px;
     padding: 0px;
     min-width: 36px;
     max-width: 36px;
@@ -2250,22 +2252,47 @@ QLabel#dupCount {
 
 QTableWidget#dupTable {
     background-color: #1a1a1a;
+    alternate-background-color: #1a1a1a;
     border: none;
-    gridline-color: #2d2d2d;
+    gridline-color: #252525;
     color: #d8d8d8;
     font-size: 12pt;
     font-family: "Figtree", "Segoe UI", sans-serif;
+    selection-background-color: #4a2a22;
+    selection-color: #d8d8d8;
+    outline: none;
+}
+
+QTableWidget#dupTable::item {
+    padding: 0px;
+    min-height: 40px;
+}
+
+QTableWidget#dupTable::item:hover {
+    background-color: #252525;
+}
+
+QTableWidget#dupTable::item:selected {
+    background-color: #4a2a22;
+    color: #d8d8d8;
+}
+
+QTableWidget#dupTable::item:selected:hover {
+    background-color: #5a3228;
 }
 
 QTableWidget#dupTable QHeaderView::section {
-    background-color: #222222;
+    background-color: #1a1a1a;
     color: #5a5a5a;
-    font-size: 11pt;
+    font-size: 10pt;
     font-family: "Consolas", "Courier New", monospace;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
     border: none;
     border-bottom: 1px solid #2d2d2d;
-    padding: 4px 8px;
+    border-right: 1px solid #2d2d2d;
+    padding: 0px 12px;
+    min-height: 32px;
+    max-height: 32px;
 }
 
 QWidget#dupFooter {
@@ -2286,6 +2313,7 @@ QWidget#waveformWidget {
     min-height: 80px;
     max-height: 80px;
     border: none;
+    border-bottom: 1px solid #2d2d2d;
 }
 
 QLabel#waveformStatusLabel {
@@ -2294,4 +2322,111 @@ QLabel#waveformStatusLabel {
     font-weight: 400;
     color: #5a5a5a;
     background-color: transparent;
+}
+
+/* =============================================================================
+   COLLECTION TREE  (#collectionTree)
+   Sidebar navigation. Category headers styled via inline C++.
+   Leaf items: body font, accent highlight on selection.
+   ============================================================================= */
+
+QTreeWidget#collectionTree {
+    background-color: #222222;
+    border: none;
+    outline: none;
+    padding: 8px 0px;
+    font-size: 13pt;
+    font-family: "Figtree", "Segoe UI", sans-serif;
+}
+
+QTreeWidget#collectionTree::item {
+    background-color: transparent;
+    color: #d8d8d8;
+    padding: 6px 12px;
+    border: none;
+    min-height: 28px;
+}
+
+QTreeWidget#collectionTree::item:hover {
+    background-color: #2a2a2a;
+    color: #d8d8d8;
+}
+
+QTreeWidget#collectionTree::item:selected {
+    background-color: #4a2a22;
+    color: #ff764d;
+}
+
+QTreeWidget#collectionTree::item:selected:hover {
+    background-color: #5a3228;
+    color: #ff764d;
+}
+
+QTreeWidget#collectionTree::branch {
+    background-color: transparent;
+    border: none;
+}
+
+/* =============================================================================
+   TOOLBAR BUTTONS — Consolas, uppercase, machinelike
+   Consistent secondary style: ghost by default, lift on hover.
+   #editSelectedBtn uses accent tint since it is the primary batch action.
+   ============================================================================= */
+
+QPushButton#exportBtn,
+QPushButton#analyzeBtn,
+QPushButton#missingBtn {
+    font-size: 11pt;
+    font-family: "Consolas", "Courier New", monospace;
+    letter-spacing: 1.5px;
+    padding: 7px 16px;
+    background-color: transparent;
+    color: #808080;
+    border: 1px solid #2d2d2d;
+    border-radius: 1px;
+}
+
+QPushButton#exportBtn:hover,
+QPushButton#analyzeBtn:hover,
+QPushButton#missingBtn:hover {
+    background-color: #2a2a2a;
+    color: #d8d8d8;
+    border-color: #505050;
+}
+
+QPushButton#exportBtn:pressed,
+QPushButton#analyzeBtn:pressed,
+QPushButton#missingBtn:pressed {
+    background-color: #222222;
+    color: #d8d8d8;
+    border-color: #505050;
+}
+
+/* Edit Selected — accent-tinted when active, primary batch action */
+QPushButton#editSelectedBtn {
+    font-size: 11pt;
+    font-family: "Consolas", "Courier New", monospace;
+    letter-spacing: 1.5px;
+    padding: 7px 16px;
+    background-color: transparent;
+    color: #ff764d;
+    border: 1px solid #4a2a22;
+    border-radius: 1px;
+}
+
+QPushButton#editSelectedBtn:hover {
+    background-color: #4a2a22;
+    color: #ff764d;
+    border-color: #5a3228;
+}
+
+QPushButton#editSelectedBtn:pressed {
+    background-color: #3a221a;
+    color: #ff764d;
+}
+
+QPushButton#editSelectedBtn:disabled {
+    background-color: transparent;
+    color: #404040;
+    border-color: #252525;
 }
