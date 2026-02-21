@@ -15,12 +15,12 @@
 - [x] **Phase 6b: CDJ USB direct export** — PdbWriter writing Pioneer `export.pdb` binary (no Rekordbox needed)
 - [x] **Phase 7b: Essentia deep analysis** — replace ffprobe with Essentia BeatTrackerMultiFeature, KeyExtractor, Discogs-Effnet model (genre/mood/danceability/vocal tags; ONNX runtime)
 - [ ] **Phase 8: AI track descriptions** — Discogs-Effnet tags + small local LLM (llama.cpp/Mistral) → natural language descriptions e.g. "peak time techno with spacey pads"
-- [ ] **Phase 9: Waveform renderer** — peak data computation, WaveformWidget in TrackDetailPanel
+- [x] **Phase 9: Waveform renderer** — peak data computation, WaveformWidget in TrackDetailPanel
 - [ ] **Phase 10: ANLZ generation** — real beat grid + waveform data written to CDJ ANLZ files (DAT/EXT) for USB export
 - [x] **Phase 11: FTS5 full-text search** — title/artist/album/genre with BM25 ranking
-- [ ] **Phase 12: Duplicate detector** — match by match_key or similar BPM+duration
+- [x] **Phase 12: Duplicate detector** — match by match_key or similar BPM+duration
 - [x] **Phase 13: Batch metadata editor** — multi-select inline title/artist/genre/BPM editing
 - [x] **Phase 14: Missing file relocator** — detect broken paths, let user relink
-- [ ] **Phase 15: Preparation mode** — mark tracks as prepared, color-coded cue states
-- [ ] **Phase 16: Additional exports** — Serato crates, M3U
-- [ ] **Phase 17: Track history** — log played/exported tracks with timestamps
+- [x] **Phase 15: Preparation mode** — mark tracks as prepared, green dot column, "Prepared for Gig" smart playlist
+- [x] **Phase 16: M3U export** — M3UExporter service; wired to "duplicates" toolbar button; playlist context menu
+- [x] **Phase 17: Track history** — play_history table, recordPlay(), lazy History tree, date-grouped navigation

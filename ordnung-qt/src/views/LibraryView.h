@@ -22,6 +22,7 @@ class AudioAnalyzer;
 class AnalysisProgressDialog;
 class BatchEditDialog;
 class MissingFilesDialog;
+class DuplicateDetectorDialog;
 
 // LibraryView — the Library tab content.
 // Owns the toolbar (search, undo, folder button), the CollectionTreePanel
@@ -62,6 +63,10 @@ private slots:
     void onEditSelectedClicked();
     void onFindMissingClicked();
     void onSelectionChanged();
+    void onPrepareToggleRequested(long long songId, bool currentlyPrepared);
+    void onHistoryDateSelected(const QString& date);
+    void onDuplicatesClicked();
+    void onExportPlaylistM3uRequested(long long playlistId);
 
 private:
     void loadAndScan();
@@ -82,6 +87,7 @@ private:
     QPushButton* m_analyzeBtn      = nullptr;
     QPushButton* m_editSelectedBtn = nullptr;
     QPushButton* m_missingBtn      = nullptr;
+    QPushButton* m_duplicatesBtn   = nullptr;
     QLabel*      m_searchBadge     = nullptr;
     QLabel*      m_statsLabel      = nullptr;
 
@@ -99,4 +105,5 @@ private:
     QTimer*        m_analyzeTimer  = nullptr;  // forces viewport repaints while analyzing
 
     long long m_activePlaylistId = -1;
+    long long m_currentSongId    = -1;  // track expanded/playing, for recordPlay
 };

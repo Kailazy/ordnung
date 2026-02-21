@@ -147,6 +147,30 @@ public:
     QByteArray loadWaveformOverview(long long songId);
     bool       saveWaveformOverview(long long songId, const QByteArray& peaks);
 
+    // ── Preparation Mode ───────────────────────────────────────────────────────
+    // Toggle and query the is_prepared flag on a track.
+    bool updateSongPrepared(long long songId, bool prepared);
+    QVector<Track> loadPreparedTracks();
+
+    // ── Duplicate Detector ──────────────────────────────────────────────────────
+    // Returns pairs of tracks sharing the same match_key (different filepaths) or
+    // same artist+title but different IDs. Each inner pair is {keepCandidate, duplicate}.
+    struct DuplicatePair { Track a; Track b; };
+    QVector<DuplicatePair> findDuplicateTracks();
+
+    // ── Play History ───────────────────────────────────────────────────────────
+    // Record that a track was played now.
+    bool recordPlay(long long songId);
+    // Load recent play history ordered by played_at DESC.
+    // Returns distinct date strings (YYYY-MM-DD) that have history entries.
+    QStringList loadHistoryDates(int limit = 30);
+    // Load tracks played on a specific date (YYYY-MM-DD).
+    QVector<Track> loadTracksPlayedOn(const QString& date);
+    // Load the most recently played tracks.
+    QVector<Track> loadRecentlyPlayed(int limit = 50);
+    // Load tracks added in the last N days.
+    QVector<Track> loadRecentlyAdded(int days = 30);
+
     // ── Utility ────────────────────────────────────────────────────────────────
     // Check whether a filepath is already tracked in downloads.
     bool downloadExists(const QString& filepath);

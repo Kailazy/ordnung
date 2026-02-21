@@ -203,6 +203,9 @@ QVariant TrackModel::data(const QModelIndex& index, int role) const
     case ColorLabelRole:
         return t.color_label;
 
+    case PreparedRole:
+        return t.is_prepared;
+
     case Qt::TextAlignmentRole: {
         const auto colRole = LibraryTableColumn::columnRole(index.column());
         switch (colRole) {
@@ -353,6 +356,14 @@ void TrackModel::setIsAnalyzing(int row, bool analyzing)
     if (row < 0 || row >= m_tracks.size()) return;
     m_tracks[row].is_analyzing = analyzing;
     emit dataChanged(index(row, 0), index(row, columnCount() - 1), {IsAnalyzingRole});
+}
+
+void TrackModel::setPrepared(int row, bool prepared)
+{
+    if (row < 0 || row >= m_tracks.size()) return;
+    m_tracks[row].is_prepared = prepared;
+    const QModelIndex idx = index(row, LibraryTableColumn::columnIndex(LibraryTableColumn::Prepared));
+    emit dataChanged(idx, idx, {PreparedRole, Qt::DecorationRole});
 }
 
 void TrackModel::updateTrackMetadata(const Track& updated)

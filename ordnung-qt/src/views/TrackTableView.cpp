@@ -11,6 +11,9 @@
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include <QResizeEvent>
+#include <QContextMenuEvent>
+#include <QMenu>
+#include <QAction>
 #include <QUndoStack>
 #include <QPalette>
 #include <QColor>
@@ -433,4 +436,42 @@ void TrackTableView::leaveEvent(QEvent* event)
     }
     viewport()->update();
     QTableView::leaveEvent(event);
+}
+
+void TrackTableView::contextMenuEvent(QContextMenuEvent* event)
+{
+    QMenu menu(this);
+
+    // Single-row: preparation mode toggle
+    const QModelIndex proxyIdx = indexAt(event->pos());
+    if (proxyIdx.isValid()) {
+        const QModelIndex srcIdx = m_proxy->mapToSource(proxyIdx);
+        if (srcIdx.isValid() && srcIdx.row() < m_trackModel->tracks().size()) {
+            const Track& t = m_trackModel->tracks()[srcIdx.row()];
+            const long long songId = t.id;
+            const bool prepared    = t.is_prepared;
+            const QString actionText = prepared
+                ? QStringLiteral("Remove Preparation Mark")
+                : QStringLiteral("Mark as Prepared");
+            auto* prepAction = menu.addAction(actionText);
+            connect(prepAction, &QAction::triggered, this, [this, songId, prepared]() {
+                emit prepareToggleRequested(songId, prepared);
+            });
+        }
+    }
+
+    // Multi-row: batch edit
+    const int selectedCount = selectionModel()->selectedRows().size();
+    if (selectedCount >= 2) {
+        if (!menu.isEmpty())
+            menu.addSeparator();
+        auto* editAction = menu.addAction(
+            QStringLiteral("Edit %1 selected...").arg(selectedCount));
+        connect(editAction, &QAction::triggered, this, [this]() {
+            emit batchEditRequested();
+        });
+    }
+
+    if (!menu.isEmpty())
+        menu.exec(event->globalPos());
 }

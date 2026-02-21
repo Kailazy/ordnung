@@ -1369,7 +1369,7 @@ QPushButton#exportTypeCard {
     padding: 24px 32px;
     border: 1px solid #2d2d2d;
     border-radius: 1px;
-    min-width: 260px;
+    min-width: 160px;   /* reduced from 260px to accommodate three-card layout */
     min-height: 140px;
 }
 
@@ -2209,4 +2209,89 @@ QPushButton#missingCloseBtn:pressed {
     background-color: #222222;
     color: #d8d8d8;
     border-color: #505050;
+}
+
+/* =============================================================================
+   DUPLICATE DETECTOR DIALOG  (#duplicateDialog)
+   Frameless, fixed 760×480. Header / table / footer layout.
+   Shares button object names with MissingFilesDialog for styling.
+   ============================================================================= */
+
+QDialog#duplicateDialog {
+    background-color: #1a1a1a;
+    border: 1px solid #2d2d2d;
+}
+
+QWidget#dupHeader {
+    background-color: #1a1a1a;
+    border-bottom: 1px solid #2d2d2d;
+    min-height: 44px;
+    max-height: 44px;
+}
+
+QLabel#dupTitle {
+    font-size: 11pt;
+    font-family: "Consolas", "Courier New", monospace;
+    font-weight: 400;
+    letter-spacing: 3px;
+    color: #5a5a5a;
+    background-color: transparent;
+}
+
+QLabel#dupCount {
+    font-size: 11pt;
+    font-family: "Consolas", "Courier New", monospace;
+    font-weight: 400;
+    color: #e8a84a;
+    background-color: #3a2a18;
+    padding: 2px 8px;
+    border-radius: 1px;
+}
+
+QTableWidget#dupTable {
+    background-color: #1a1a1a;
+    border: none;
+    gridline-color: #2d2d2d;
+    color: #d8d8d8;
+    font-size: 12pt;
+    font-family: "Figtree", "Segoe UI", sans-serif;
+}
+
+QTableWidget#dupTable QHeaderView::section {
+    background-color: #222222;
+    color: #5a5a5a;
+    font-size: 11pt;
+    font-family: "Consolas", "Courier New", monospace;
+    letter-spacing: 2px;
+    border: none;
+    border-bottom: 1px solid #2d2d2d;
+    padding: 4px 8px;
+}
+
+QWidget#dupFooter {
+    background-color: #1a1a1a;
+    border-top: 1px solid #2d2d2d;
+    min-height: 48px;
+    max-height: 48px;
+}
+
+/* =============================================================================
+   WAVEFORM WIDGET  (#waveformWidget)
+   Custom QPainter widget. 80px fixed height, full panel width.
+   All peak/playhead rendering is done in C++ paint code.
+   ============================================================================= */
+
+QWidget#waveformWidget {
+    background-color: #222222;
+    min-height: 80px;
+    max-height: 80px;
+    border: none;
+}
+
+QLabel#waveformStatusLabel {
+    font-size: 11pt;
+    font-family: "Consolas", "Courier New", monospace;
+    font-weight: 400;
+    color: #5a5a5a;
+    background-color: transparent;
 }

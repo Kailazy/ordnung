@@ -12,15 +12,16 @@
 namespace LibraryTableColumn {
 
 enum ColumnRole {
-    Title   = 0,
-    Artist  = 1,
-    Bpm     = 2,
-    Key     = 3,
-    Time    = 4,
-    Format  = 5,
-    Color   = 6,   // Pioneer color label dot (24px, click-to-cycle)
-    Bitrate = 7,   // Audio bitrate in kbps
-    Comment = 8,   // User comment / annotation
+    Title    = 0,
+    Artist   = 1,
+    Bpm      = 2,
+    Key      = 3,
+    Time     = 4,
+    Format   = 5,
+    Color    = 6,   // Pioneer color label dot (24px, click-to-cycle)
+    Prepared = 7,   // Preparation mode indicator dot (20px, green when prepared)
+    Bitrate  = 8,   // Audio bitrate in kbps
+    Comment  = 9,   // User comment / annotation
     // Add new roles here; keep in sync with kColumns in LibraryTableColumn.cpp.
 };
 

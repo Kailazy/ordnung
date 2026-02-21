@@ -7,6 +7,7 @@
 #include <QMenu>
 #include <QAction>
 #include <QHeaderView>
+#include <QDate>
 #include <QDebug>
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -59,6 +60,8 @@ CollectionTreePanel::CollectionTreePanel(Database* db, QWidget* parent)
     // ── Connections ──────────────────────────────────────────────────────────
     connect(m_tree, &QTreeWidget::itemClicked,
             this,   &CollectionTreePanel::onItemClicked);
+    connect(m_tree, &QTreeWidget::itemExpanded,
+            this,   &CollectionTreePanel::onItemExpanded);
     connect(m_tree, &QTreeWidget::customContextMenuRequested,
             this,   &CollectionTreePanel::onContextMenu);
     connect(m_importZone, &ImportZone::clicked,
@@ -132,6 +135,8 @@ void CollectionTreePanel::buildTree()
     // ── Smart Playlists ──────────────────────────────────────────────────────
     m_smartNode = makeCategory(QStringLiteral("Smart Playlists"));
 
+    auto* prepared  = makeLeaf(QStringLiteral("Prepared for Gig"),  SmartPlaylist);
+    prepared->setData(0, IdRole, QVariant("prepared"));
     auto* needsAiff = makeLeaf(QStringLiteral("Needs AIFF"),        SmartPlaylist);
     needsAiff->setData(0, IdRole, QVariant("needs_aiff"));
     auto* highBpm   = makeLeaf(QStringLiteral("High BPM (>140)"),   SmartPlaylist);
@@ -139,6 +144,7 @@ void CollectionTreePanel::buildTree()
     auto* topRated  = makeLeaf(QStringLiteral("Top Rated (★★★+)"), SmartPlaylist);
     topRated->setData(0, IdRole, QVariant("top_rated"));
 
+    m_smartNode->addChild(prepared);
     m_smartNode->addChild(needsAiff);
     m_smartNode->addChild(highBpm);
     m_smartNode->addChild(topRated);
@@ -208,9 +214,13 @@ void CollectionTreePanel::onItemClicked(QTreeWidgetItem* item, int /*column*/)
 
     switch (nodeType) {
     case AllTracks:
-    case RecentlyAdded:
-    case RecentlyPlayed:
         emit collectionSelected();
+        break;
+    case RecentlyAdded:
+        emit smartPlaylistSelected(QStringLiteral("recently_added"));
+        break;
+    case RecentlyPlayed:
+        emit smartPlaylistSelected(QStringLiteral("recently_played"));
         break;
     case PlaylistNode: {
         const long long id = idVariant.toLongLong();
@@ -247,11 +257,14 @@ void CollectionTreePanel::onContextMenu(const QPoint& pos)
     const long long id = item->data(0, IdRole).toLongLong();
 
     QMenu menu(this);
-    QAction* exportAct = menu.addAction(QStringLiteral("Export playlist..."));
-    QAction* delAct    = menu.addAction(QStringLiteral("Delete Playlist"));
-    QAction* chosen    = menu.exec(m_tree->viewport()->mapToGlobal(pos));
-    if (chosen == exportAct)
+    QAction* exportXmlAct = menu.addAction(QStringLiteral("Export as Rekordbox XML..."));
+    QAction* exportM3uAct = menu.addAction(QStringLiteral("Export as M3U..."));
+    QAction* delAct       = menu.addAction(QStringLiteral("Delete Playlist"));
+    QAction* chosen       = menu.exec(m_tree->viewport()->mapToGlobal(pos));
+    if (chosen == exportXmlAct)
         emit exportPlaylistRequested(id);
+    else if (chosen == exportM3uAct)
+        emit exportPlaylistM3uRequested(id);
     else if (chosen == delAct)
         emit deletePlaylistRequested(id);
 }
@@ -264,4 +277,45 @@ void CollectionTreePanel::onImportZoneClicked()
 void CollectionTreePanel::onImportZoneFilesDropped(const QStringList& paths)
 {
     emit importRequested(paths);
+}
+
+void CollectionTreePanel::onItemExpanded(QTreeWidgetItem* item)
+{
+    if (!item || item != m_historyNode) return;
+
+    // Lazy-load history dates whenever the History category is expanded.
+    // Clear previous entries and repopulate from DB (most recent 30 dates).
+    while (m_historyNode->childCount() > 0)
+        delete m_historyNode->takeChild(0);
+
+    const QStringList dates = m_db->loadHistoryDates(30);
+    const QDate today     = QDate::currentDate();
+    const QDate yesterday = today.addDays(-1);
+
+    for (const QString& dateStr : dates) {
+        const QDate date = QDate::fromString(dateStr, Qt::ISODate);
+        QString label;
+        if (date == today)
+            label = QStringLiteral("Today");
+        else if (date == yesterday)
+            label = QStringLiteral("Yesterday");
+        else if (date.year() == today.year())
+            label = date.toString(QStringLiteral("ddd d MMM"));
+        else
+            label = date.toString(QStringLiteral("ddd d MMM yyyy"));
+
+        auto* dateItem = makeLeaf(label, HistoryDate);
+        dateItem->setData(0, IdRole, QVariant(dateStr));
+        m_historyNode->addChild(dateItem);
+    }
+
+    if (dates.isEmpty()) {
+        auto* emptyItem = makeLeaf(QStringLiteral("No history yet"), CategoryHeader);
+        QFont italicF = m_tree->font();
+        italicF.setPointSize(Theme::Font::Caption);
+        italicF.setItalic(true);
+        emptyItem->setFont(0, italicF);
+        emptyItem->setForeground(0, QColor(Theme::Color::Text3));
+        m_historyNode->addChild(emptyItem);
+    }
 }

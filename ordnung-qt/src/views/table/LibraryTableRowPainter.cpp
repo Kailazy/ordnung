@@ -183,6 +183,17 @@ void paintCell(QPainter* painter,
         }
         break;
     }
+    case LibraryTableColumn::Prepared: {
+        // Paint a small green dot when the track is marked as prepared.
+        if (t.is_prepared) {
+            const int dotR = 3;
+            const QPoint center = cellRect.center();
+            painter->setPen(Qt::NoPen);
+            painter->setBrush(QColor(Theme::Color::Green));
+            painter->drawEllipse(center, dotR, dotR);
+        }
+        break;
+    }
     case LibraryTableColumn::Bitrate: {
         const QString text = t.bitrate > 0
             ? QString::number(t.bitrate)

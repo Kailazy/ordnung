@@ -21,6 +21,7 @@ public:
         HasAiffRole      = Qt::UserRole + 3,  // bool
         ColorLabelRole   = Qt::UserRole + 4,  // int — Pioneer color index 0-8
         IsAnalyzingRole  = Qt::UserRole + 5,  // bool — background ffprobe in progress
+        PreparedRole     = Qt::UserRole + 6,  // bool — preparation mode marker
     };
 
     explicit TrackModel(Database* db, QObject* parent = nullptr);
@@ -66,6 +67,7 @@ public:
     void setExpanded(int row, bool expanded);
     void setColorLabel(int row, int colorLabel);
     void setIsAnalyzing(int row, bool analyzing);
+    void setPrepared(int row, bool prepared);
 
     // Update bpm/key/bitrate/time for a track after background analysis completes.
     // Clears is_analyzing, persists to DB, and emits dataChanged.

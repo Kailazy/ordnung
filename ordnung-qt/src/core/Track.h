@@ -35,6 +35,9 @@ struct Track {
     float       vocal_prob   = 0.0f;    // 0.0–1.0 (1.0 = vocal, 0.0 = instrumental)
     bool        essentia_analyzed = false;
 
+    // Preparation mode — persisted
+    bool        is_prepared  = false;  // DJ has marked this track as prepared for a gig
+
     // Runtime-only UI state — not persisted
     bool        expanded     = false;
     bool        is_analyzing = false;  // true while background ffprobe is running for this track

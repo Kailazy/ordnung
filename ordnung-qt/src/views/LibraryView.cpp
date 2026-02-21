@@ -8,6 +8,8 @@
 #include "views/AnalysisProgressDialog.h"
 #include "views/BatchEditDialog.h"
 #include "views/MissingFilesDialog.h"
+#include "views/DuplicateDetectorDialog.h"
+#include "services/M3UExporter.h"
 #include "models/TrackModel.h"
 #include "commands/UpdateFormatCommand.h"
 #include "services/Database.h"
@@ -106,6 +108,11 @@ LibraryView::LibraryView(TrackModel* tracks, Database* db,
     m_missingBtn->setCursor(Qt::PointingHandCursor);
     connect(m_missingBtn, &QPushButton::clicked, this, &LibraryView::onFindMissingClicked);
 
+    m_duplicatesBtn = new QPushButton("duplicates", toolbar);
+    m_duplicatesBtn->setObjectName("missingBtn");
+    m_duplicatesBtn->setCursor(Qt::PointingHandCursor);
+    connect(m_duplicatesBtn, &QPushButton::clicked, this, &LibraryView::onDuplicatesClicked);
+
     m_statsLabel = new QLabel(toolbar);
     m_statsLabel->setObjectName("statsLabel");
     m_statsLabel->setTextInteractionFlags(Qt::NoTextInteraction);
@@ -122,6 +129,7 @@ LibraryView::LibraryView(TrackModel* tracks, Database* db,
     toolbarLayout->addWidget(m_analyzeBtn);
     toolbarLayout->addWidget(m_editSelectedBtn);
     toolbarLayout->addWidget(m_missingBtn);
+    toolbarLayout->addWidget(m_duplicatesBtn);
     toolbarLayout->addStretch();
     toolbarLayout->addWidget(m_statsLabel);
 
@@ -186,23 +194,8 @@ LibraryView::LibraryView(TrackModel* tracks, Database* db,
     connect(m_trackTable->selectionModel(), &QItemSelectionModel::selectionChanged,
             this, [this]() { onSelectionChanged(); });
 
-    // Context menu on track table
-    m_trackTable->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(m_trackTable, &QWidget::customContextMenuRequested,
-            this, [this](const QPoint& pos) {
-                const auto selected = m_trackTable->selectionModel()->selectedRows();
-                if (selected.isEmpty()) return;
-
-                QMenu menu(m_trackTable);
-                if (selected.size() >= 2) {
-                    auto* editAction = menu.addAction(
-                        QString("Edit %1 selected...").arg(selected.size()));
-                    connect(editAction, &QAction::triggered,
-                            this, &LibraryView::onEditSelectedClicked);
-                }
-                if (!menu.isEmpty())
-                    menu.exec(m_trackTable->viewport()->mapToGlobal(pos));
-            });
+    // Context menu is handled by TrackTableView::contextMenuEvent override.
+    // prepareToggleRequested and batchEditRequested are connected below.
     connect(m_undoBtn, &QPushButton::clicked, m_undoStack, &QUndoStack::undo);
     connect(m_undoStack, &QUndoStack::canUndoChanged,
             this, &LibraryView::onUndoAvailable);
@@ -222,6 +215,10 @@ LibraryView::LibraryView(TrackModel* tracks, Database* db,
             this, &LibraryView::onDeletePlaylistRequested);
     connect(m_collectionPanel, &CollectionTreePanel::exportPlaylistRequested,
             this, &LibraryView::onExportPlaylistRequested);
+    connect(m_collectionPanel, &CollectionTreePanel::historyDateSelected,
+            this, &LibraryView::onHistoryDateSelected);
+    connect(m_collectionPanel, &CollectionTreePanel::exportPlaylistM3uRequested,
+            this, &LibraryView::onExportPlaylistM3uRequested);
 
     connect(m_trackTable, &TrackTableView::trackExpanded,
             this,         &LibraryView::onTrackExpanded);
@@ -233,6 +230,10 @@ LibraryView::LibraryView(TrackModel* tracks, Database* db,
             });
     connect(m_trackTable,  &TrackTableView::playRequested,
             this,          &LibraryView::onPlayRequested);
+    connect(m_trackTable, &TrackTableView::prepareToggleRequested,
+            this,         &LibraryView::onPrepareToggleRequested);
+    connect(m_trackTable, &TrackTableView::batchEditRequested,
+            this,         &LibraryView::onEditSelectedClicked);
     connect(m_detailPanel, &TrackDetailPanel::playRequested,
             this,          &LibraryView::onPlayRequested);
 
@@ -398,10 +399,37 @@ void LibraryView::onPlaylistSelected(long long id)
     updateStats();
 }
 
-void LibraryView::onSmartPlaylistSelected(const QString& /*key*/)
+void LibraryView::onSmartPlaylistSelected(const QString& key)
 {
-    // TODO: dedicated DB queries per smart filter key. For now load all library tracks.
-    onCollectionSelected();
+    m_activePlaylistId = -1;
+    m_detailPanel->clear();
+
+    QVector<Track> tracks;
+    if (key == QStringLiteral("needs_aiff")) {
+        const QVector<Track> all = m_db->loadLibrarySongs(m_libraryFolder);
+        for (const Track& t : all)
+            if (!t.has_aiff) tracks.append(t);
+    } else if (key == QStringLiteral("high_bpm")) {
+        const QVector<Track> all = m_db->loadLibrarySongs(m_libraryFolder);
+        for (const Track& t : all)
+            if (t.bpm > 140.0) tracks.append(t);
+    } else if (key == QStringLiteral("top_rated")) {
+        const QVector<Track> all = m_db->loadLibrarySongs(m_libraryFolder);
+        for (const Track& t : all)
+            if (t.rating >= 3) tracks.append(t);
+    } else if (key == QStringLiteral("prepared")) {
+        tracks = m_db->loadPreparedTracks();
+    } else if (key == QStringLiteral("recently_added")) {
+        tracks = m_db->loadRecentlyAdded(30);
+    } else if (key == QStringLiteral("recently_played")) {
+        tracks = m_db->loadRecentlyPlayed(50);
+    } else {
+        onCollectionSelected();
+        return;
+    }
+
+    m_trackModel->loadFromDatabase(tracks);
+    updateStats();
 }
 
 void LibraryView::onImportRequested(const QStringList& filePaths)
@@ -445,6 +473,7 @@ void LibraryView::onDeletePlaylistRequested(long long id)
 
 void LibraryView::onTrackExpanded(const QVariantMap& data)
 {
+    m_currentSongId = data.value(QStringLiteral("id"), -1LL).toLongLong();
     m_detailPanel->populate(data, m_activePlaylistId);
     m_detailPanel->setVisible(true);
 }
@@ -465,6 +494,8 @@ void LibraryView::onPlayRequested(const QString& filePath,
 {
     m_playerBar->setVisible(true);
     m_playerBar->playFile(filePath, title, artist);
+    if (m_currentSongId > 0)
+        m_db->recordPlay(m_currentSongId);
 }
 
 void LibraryView::onScanFinished()
@@ -628,4 +659,80 @@ void LibraryView::onSelectionChanged()
         m_editSelectedBtn->setEnabled(false);
         m_editSelectedBtn->setText("EDIT SELECTED");
     }
+}
+
+void LibraryView::onPrepareToggleRequested(long long songId, bool currentlyPrepared)
+{
+    const bool newState = !currentlyPrepared;
+    if (!m_db->updateSongPrepared(songId, newState)) {
+        qWarning() << "[Library] Failed to update prepared state for song" << songId;
+        return;
+    }
+    const int row = m_trackModel->rowForId(songId);
+    if (row >= 0)
+        m_trackModel->setPrepared(row, newState);
+    qInfo() << "[Library] Song" << songId << (newState ? "marked as prepared" : "unmarked as prepared");
+}
+
+void LibraryView::onHistoryDateSelected(const QString& date)
+{
+    m_activePlaylistId = -1;
+    const QVector<Track> tracks = m_db->loadTracksPlayedOn(date);
+    m_trackModel->loadFromDatabase(tracks);
+    m_detailPanel->clear();
+    updateStats();
+}
+
+void LibraryView::onExportPlaylistM3uRequested(long long playlistId)
+{
+    const QVector<Track> tracks = m_db->loadPlaylistSongs(playlistId);
+    if (tracks.isEmpty()) {
+        QMessageBox::information(this, QStringLiteral("Export M3U"),
+                                 QStringLiteral("This playlist has no tracks."));
+        return;
+    }
+
+    // Find the playlist name for the file suggestion
+    QString playlistName;
+    const QVector<Playlist> playlists = m_db->loadPlaylists();
+    for (const Playlist& p : playlists) {
+        if (p.id == playlistId) {
+            playlistName = QString::fromStdString(p.name);
+            break;
+        }
+    }
+
+    const QString defaultFile = (playlistName.isEmpty() ? QStringLiteral("playlist") : playlistName)
+                                + QStringLiteral(".m3u");
+    const QString outputPath = QFileDialog::getSaveFileName(
+        this,
+        QStringLiteral("Export M3U Playlist"),
+        QDir::homePath() + QLatin1Char('/') + defaultFile,
+        QStringLiteral("M3U Playlist (*.m3u);;All Files (*)"));
+    if (outputPath.isEmpty()) return;
+
+    const bool ok = M3UExporter::exportTracks(tracks, outputPath, playlistName);
+    if (!ok) {
+        QMessageBox::warning(this, QStringLiteral("Export Failed"),
+                             QStringLiteral("Could not write M3U file to:\n") + outputPath);
+    } else {
+        qInfo() << "[Library] Exported M3U playlist:" << outputPath
+                << "(" << tracks.size() << "tracks)";
+    }
+}
+
+void LibraryView::onDuplicatesClicked()
+{
+    auto* dlg = new DuplicateDetectorDialog(m_db, this);
+    dlg->exec();
+
+    const QVector<long long> removed = dlg->removedIds();
+    if (!removed.isEmpty()) {
+        // Refresh current view to remove deleted tracks
+        if (m_activePlaylistId > 0)
+            onPlaylistSelected(m_activePlaylistId);
+        else
+            onCollectionSelected();
+    }
+    dlg->deleteLater();
 }

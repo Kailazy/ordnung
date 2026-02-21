@@ -14,8 +14,9 @@ static const struct {
     { false, 72,  "TIME"    },  // 4
     { false, 80,  "FORMAT"  },  // 5
     { false, 24,  ""        },  // 6 Color (dot, no header text)
-    { false, 64,  "KBPS"    },  // 7 Bitrate
-    { false, 160, "COMMENT" },  // 8 Comment
+    { false, 20,  ""        },  // 7 Prepared (green dot when prepared, no header text)
+    { false, 64,  "KBPS"    },  // 8 Bitrate
+    { false, 160, "COMMENT" },  // 9 Comment
 };
 
 int columnCount()

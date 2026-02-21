@@ -89,6 +89,8 @@ set(SOURCES
     src/views/BatchEditDialog.cpp
     src/views/MissingFilesDialog.h
     src/views/MissingFilesDialog.cpp
+    src/views/DuplicateDetectorDialog.h
+    src/views/DuplicateDetectorDialog.cpp
     src/views/DownloadsView.h
     src/views/DownloadsView.cpp
 
@@ -122,6 +124,10 @@ set(SOURCES
     src/services/AudioAnalyzer.cpp
     src/services/EssentiaAnalyzer.h
     src/services/EssentiaAnalyzer.cpp
+    src/services/WaveformGenerator.h
+    src/services/WaveformGenerator.cpp
+    src/services/M3UExporter.h
+    src/services/M3UExporter.cpp
 
     resources/resources.qrc
 )

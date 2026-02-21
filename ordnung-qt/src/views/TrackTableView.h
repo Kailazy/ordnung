@@ -63,6 +63,10 @@ signals:
     void trackCollapsed();
     void formatChangeRequested(const QModelIndex& sourceIndex, const QString& newFormat);
     void playRequested(const QString& filePath, const QString& title, const QString& artist);
+    // Emitted from context menu when user toggles preparation state.
+    void prepareToggleRequested(long long songId, bool currentlyPrepared);
+    // Emitted from context menu when user wants to batch-edit selected tracks.
+    void batchEditRequested();
 
 protected:
     void mousePressEvent(QMouseEvent* event) override;
@@ -71,6 +75,7 @@ protected:
     void keyPressEvent(QKeyEvent* event) override;
     void leaveEvent(QEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
+    void contextMenuEvent(QContextMenuEvent* event) override;
 
 private:
     void applyColumnVisibilityAndWidths();

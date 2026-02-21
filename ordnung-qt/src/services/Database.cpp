@@ -210,6 +210,21 @@ void Database::runMigrations()
         safeAlter(QStringLiteral("ALTER TABLE songs ADD COLUMN essentia_analyzed  INTEGER DEFAULT 0"));
     }
 
+    // Migration: Preparation mode + waveform computed flag
+    {
+        auto safeAlter = [&](const QString& sql) {
+            QSqlQuery aq(m_db);
+            if (!aq.exec(sql)) {
+                const QString err = aq.lastError().text();
+                if (!err.contains(QLatin1String("duplicate column name"),
+                                  Qt::CaseInsensitive)) {
+                    qWarning() << "DB migration ALTER warning:" << err;
+                }
+            }
+        };
+        safeAlter(QStringLiteral("ALTER TABLE songs ADD COLUMN is_prepared INTEGER DEFAULT 0"));
+    }
+
     // Cue points table
     q.exec(QStringLiteral(R"sql(
         CREATE TABLE IF NOT EXISTS cue_points (
@@ -406,7 +421,8 @@ QVector<Track> Database::loadTracks(long long playlistId, int offset, int limit)
                s.bpm, s.rating, s.time, s.key_sig, s.date_added,
                s.format, s.has_aiff, s.match_key, s.filepath,
                s.color_label, s.bitrate, s.comment, s.play_count, s.date_played, s.energy,
-               s.mood_tags, s.style_tags, s.danceability, s.valence, s.vocal_prob, s.essentia_analyzed
+               s.mood_tags, s.style_tags, s.danceability, s.valence, s.vocal_prob, s.essentia_analyzed,
+               s.is_prepared
         FROM songs s
         JOIN playlist_songs ps ON ps.song_id = s.id
         WHERE ps.playlist_id = ?
@@ -450,6 +466,7 @@ QVector<Track> Database::loadTracks(long long playlistId, int offset, int limit)
         t.valence            = q.value(23).toFloat();
         t.vocal_prob         = q.value(24).toFloat();
         t.essentia_analyzed  = q.value(25).toInt() != 0;
+        t.is_prepared        = q.value(26).toInt() != 0;
         result.append(t);
     }
     return result;
@@ -475,7 +492,8 @@ Track Database::loadSongById(long long id)
         SELECT id, title, artist, album, genre, bpm, rating, time, key_sig,
                date_added, format, has_aiff, match_key, filepath,
                color_label, bitrate, comment, play_count, date_played, energy,
-               mood_tags, style_tags, danceability, valence, vocal_prob, essentia_analyzed
+               mood_tags, style_tags, danceability, valence, vocal_prob, essentia_analyzed,
+               is_prepared
         FROM songs WHERE id = ?
     )sql"));
     q.addBindValue(static_cast<qlonglong>(id));
@@ -509,6 +527,7 @@ Track Database::loadSongById(long long id)
     t.valence            = q.value(23).toFloat();
     t.vocal_prob         = q.value(24).toFloat();
     t.essentia_analyzed  = q.value(25).toInt() != 0;
+    t.is_prepared        = q.value(26).toInt() != 0;
     return t;
 }
 
@@ -642,7 +661,8 @@ QVector<Track> Database::loadLibrarySongs(const QString& folderPrefix)
         SELECT id, title, artist, album, genre, bpm, rating, time, key_sig,
                date_added, format, has_aiff, match_key, filepath,
                color_label, bitrate, comment, play_count, date_played, energy,
-               mood_tags, style_tags, danceability, valence, vocal_prob, essentia_analyzed
+               mood_tags, style_tags, danceability, valence, vocal_prob, essentia_analyzed,
+               is_prepared
         FROM songs
         WHERE filepath LIKE ?
         ORDER BY title ASC
@@ -681,6 +701,7 @@ QVector<Track> Database::loadLibrarySongs(const QString& folderPrefix)
         t.valence            = q.value(23).toFloat();
         t.vocal_prob         = q.value(24).toFloat();
         t.essentia_analyzed  = q.value(25).toInt() != 0;
+        t.is_prepared        = q.value(26).toInt() != 0;
         result.append(t);
     }
     qInfo() << "Database::loadLibrarySongs:" << result.size()
@@ -1106,7 +1127,8 @@ QVector<Track> Database::searchTracks(const QString& query)
                s.bpm, s.rating, s.time, s.key_sig, s.date_added,
                s.format, s.has_aiff, s.match_key, s.filepath,
                s.color_label, s.bitrate, s.comment, s.play_count, s.date_played, s.energy,
-               s.mood_tags, s.style_tags, s.danceability, s.valence, s.vocal_prob, s.essentia_analyzed
+               s.mood_tags, s.style_tags, s.danceability, s.valence, s.vocal_prob, s.essentia_analyzed,
+               s.is_prepared
         FROM songs s
         JOIN songs_fts ON s.id = songs_fts.rowid
         WHERE songs_fts MATCH ?
@@ -1148,6 +1170,7 @@ QVector<Track> Database::searchTracks(const QString& query)
         t.valence            = q.value(23).toFloat();
         t.vocal_prob         = q.value(24).toFloat();
         t.essentia_analyzed  = q.value(25).toInt() != 0;
+        t.is_prepared        = q.value(26).toInt() != 0;
         result.append(t);
     }
     qInfo() << "Database::searchTracks:" << result.size() << "results for" << trimmed;
@@ -1224,7 +1247,8 @@ QVector<Track> Database::loadAllSongs()
         SELECT id, title, artist, album, genre, bpm, rating, time, key_sig,
                date_added, format, has_aiff, match_key, filepath,
                color_label, bitrate, comment, play_count, date_played, energy,
-               mood_tags, style_tags, danceability, valence, vocal_prob, essentia_analyzed
+               mood_tags, style_tags, danceability, valence, vocal_prob, essentia_analyzed,
+               is_prepared
         FROM songs
         ORDER BY title ASC
     )sql"));
@@ -1260,6 +1284,7 @@ QVector<Track> Database::loadAllSongs()
         t.valence            = q.value(23).toFloat();
         t.vocal_prob         = q.value(24).toFloat();
         t.essentia_analyzed  = q.value(25).toInt() != 0;
+        t.is_prepared        = q.value(26).toInt() != 0;
         result.append(t);
     }
     qInfo() << "Database::loadAllSongs:" << result.size() << "tracks";
@@ -1275,7 +1300,8 @@ QVector<Track> Database::loadPlaylistSongs(long long playlistId)
                s.bpm, s.rating, s.time, s.key_sig, s.date_added,
                s.format, s.has_aiff, s.match_key, s.filepath,
                s.color_label, s.bitrate, s.comment, s.play_count, s.date_played, s.energy,
-               s.mood_tags, s.style_tags, s.danceability, s.valence, s.vocal_prob, s.essentia_analyzed
+               s.mood_tags, s.style_tags, s.danceability, s.valence, s.vocal_prob, s.essentia_analyzed,
+               s.is_prepared
         FROM songs s
         JOIN playlist_songs ps ON ps.song_id = s.id
         WHERE ps.playlist_id = ?
@@ -1314,6 +1340,7 @@ QVector<Track> Database::loadPlaylistSongs(long long playlistId)
         t.valence            = q.value(23).toFloat();
         t.vocal_prob         = q.value(24).toFloat();
         t.essentia_analyzed  = q.value(25).toInt() != 0;
+        t.is_prepared        = q.value(26).toInt() != 0;
         result.append(t);
     }
     return result;
@@ -1336,6 +1363,321 @@ bool Database::updateSongAnalysis(long long songId, double bpm, const QString& k
         return false;
     }
     return true;
+}
+
+// ── Preparation Mode ────────────────────────────────────────────────────────
+
+bool Database::updateSongPrepared(long long songId, bool prepared)
+{
+    QSqlQuery q(m_db);
+    q.prepare(QStringLiteral("UPDATE songs SET is_prepared = ? WHERE id = ?"));
+    q.addBindValue(prepared ? 1 : 0);
+    q.addBindValue(static_cast<qlonglong>(songId));
+    if (!q.exec()) {
+        m_error = q.lastError().text();
+        qWarning() << "updateSongPrepared failed for id" << songId << ":" << m_error;
+        return false;
+    }
+    return true;
+}
+
+QVector<Track> Database::loadPreparedTracks()
+{
+    QVector<Track> result;
+    QSqlQuery q(m_db);
+    q.prepare(QStringLiteral(R"sql(
+        SELECT id, title, artist, album, genre, bpm, rating, time, key_sig,
+               date_added, format, has_aiff, match_key, filepath,
+               color_label, bitrate, comment, play_count, date_played, energy,
+               mood_tags, style_tags, danceability, valence, vocal_prob, essentia_analyzed,
+               is_prepared
+        FROM songs WHERE is_prepared = 1 ORDER BY title ASC
+    )sql"));
+    if (!q.exec()) {
+        qWarning() << "loadPreparedTracks error:" << q.lastError().text();
+        return result;
+    }
+    while (q.next()) {
+        Track t;
+        t.id               = q.value(0).toLongLong();
+        t.title            = q.value(1).toString().toStdString();
+        t.artist           = q.value(2).toString().toStdString();
+        t.album            = q.value(3).toString().toStdString();
+        t.genre            = q.value(4).toString().toStdString();
+        t.bpm              = q.value(5).toDouble();
+        t.rating           = q.value(6).toInt();
+        t.time             = q.value(7).toString().toStdString();
+        t.key_sig          = q.value(8).toString().toStdString();
+        t.date_added       = q.value(9).toString().toStdString();
+        t.format           = q.value(10).toString().toStdString();
+        t.has_aiff         = q.value(11).toInt() != 0;
+        t.match_key        = q.value(12).toString().toStdString();
+        t.filepath         = q.value(13).toString().toStdString();
+        t.color_label      = q.value(14).toInt();
+        t.bitrate          = q.value(15).toInt();
+        t.comment          = q.value(16).toString().toStdString();
+        t.play_count       = q.value(17).toInt();
+        t.date_played      = q.value(18).toString().toStdString();
+        t.energy           = q.value(19).toInt();
+        t.mood_tags        = q.value(20).toString().toStdString();
+        t.style_tags       = q.value(21).toString().toStdString();
+        t.danceability     = q.value(22).toFloat();
+        t.valence          = q.value(23).toFloat();
+        t.vocal_prob       = q.value(24).toFloat();
+        t.essentia_analyzed= q.value(25).toInt() != 0;
+        t.is_prepared      = q.value(26).toInt() != 0;
+        result.append(t);
+    }
+    return result;
+}
+
+// ── Duplicate Detector ────────────────────────────────────────────────────────
+
+QVector<Database::DuplicatePair> Database::findDuplicateTracks()
+{
+    QVector<DuplicatePair> result;
+
+    // Find tracks sharing the same artist+title (match_key) but different IDs.
+    // We normalise match_key to lower(artist)|||lower(title) on insert,
+    // so two rows with the same match_key are effectively the same song.
+    QSqlQuery q(m_db);
+    q.prepare(QStringLiteral(R"sql(
+        SELECT a.id, b.id
+        FROM songs a
+        JOIN songs b ON (
+            a.id < b.id AND (
+                (a.match_key = b.match_key AND a.match_key NOT LIKE 'file:%')
+                OR (
+                    lower(a.title) = lower(b.title)
+                    AND lower(a.artist) = lower(b.artist)
+                    AND a.title != ''
+                    AND a.artist != ''
+                )
+            )
+        )
+        ORDER BY a.id
+    )sql"));
+
+    if (!q.exec()) {
+        qWarning() << "findDuplicateTracks error:" << q.lastError().text();
+        return result;
+    }
+
+    while (q.next()) {
+        const long long idA = q.value(0).toLongLong();
+        const long long idB = q.value(1).toLongLong();
+        Track a = loadSongById(idA);
+        Track b = loadSongById(idB);
+        if (a.id > 0 && b.id > 0)
+            result.append({a, b});
+    }
+
+    qInfo() << "findDuplicateTracks:" << result.size() << "pairs";
+    return result;
+}
+
+// ── Play History ────────────────────────────────────────────────────────────
+
+bool Database::recordPlay(long long songId)
+{
+    QSqlQuery q(m_db);
+    q.prepare(QStringLiteral(
+        "INSERT INTO play_history (song_id, played_at) VALUES (?, datetime('now','localtime'))"));
+    q.addBindValue(static_cast<qlonglong>(songId));
+    if (!q.exec()) {
+        m_error = q.lastError().text();
+        qWarning() << "recordPlay failed for id" << songId << ":" << m_error;
+        return false;
+    }
+    // Also bump the songs.play_count and date_played
+    QSqlQuery uq(m_db);
+    uq.prepare(QStringLiteral(
+        "UPDATE songs SET play_count = play_count + 1, "
+        "date_played = datetime('now','localtime') WHERE id = ?"));
+    uq.addBindValue(static_cast<qlonglong>(songId));
+    uq.exec();
+    return true;
+}
+
+QStringList Database::loadHistoryDates(int limit)
+{
+    QStringList dates;
+    QSqlQuery q(m_db);
+    q.prepare(QStringLiteral(R"sql(
+        SELECT DISTINCT date(played_at) as d
+        FROM play_history
+        ORDER BY d DESC
+        LIMIT ?
+    )sql"));
+    q.addBindValue(limit);
+    if (q.exec()) {
+        while (q.next())
+            dates.append(q.value(0).toString());
+    }
+    return dates;
+}
+
+QVector<Track> Database::loadTracksPlayedOn(const QString& date)
+{
+    QVector<Track> result;
+    QSqlQuery q(m_db);
+    q.prepare(QStringLiteral(R"sql(
+        SELECT DISTINCT s.id, s.title, s.artist, s.album, s.genre,
+               s.bpm, s.rating, s.time, s.key_sig, s.date_added,
+               s.format, s.has_aiff, s.match_key, s.filepath,
+               s.color_label, s.bitrate, s.comment, s.play_count, s.date_played, s.energy,
+               s.mood_tags, s.style_tags, s.danceability, s.valence, s.vocal_prob,
+               s.essentia_analyzed, s.is_prepared
+        FROM songs s
+        JOIN play_history ph ON ph.song_id = s.id
+        WHERE date(ph.played_at) = ?
+        ORDER BY ph.played_at DESC
+    )sql"));
+    q.addBindValue(date);
+    if (!q.exec()) {
+        qWarning() << "loadTracksPlayedOn error:" << q.lastError().text();
+        return result;
+    }
+    while (q.next()) {
+        Track t;
+        t.id               = q.value(0).toLongLong();
+        t.title            = q.value(1).toString().toStdString();
+        t.artist           = q.value(2).toString().toStdString();
+        t.album            = q.value(3).toString().toStdString();
+        t.genre            = q.value(4).toString().toStdString();
+        t.bpm              = q.value(5).toDouble();
+        t.rating           = q.value(6).toInt();
+        t.time             = q.value(7).toString().toStdString();
+        t.key_sig          = q.value(8).toString().toStdString();
+        t.date_added       = q.value(9).toString().toStdString();
+        t.format           = q.value(10).toString().toStdString();
+        t.has_aiff         = q.value(11).toInt() != 0;
+        t.match_key        = q.value(12).toString().toStdString();
+        t.filepath         = q.value(13).toString().toStdString();
+        t.color_label      = q.value(14).toInt();
+        t.bitrate          = q.value(15).toInt();
+        t.comment          = q.value(16).toString().toStdString();
+        t.play_count       = q.value(17).toInt();
+        t.date_played      = q.value(18).toString().toStdString();
+        t.energy           = q.value(19).toInt();
+        t.mood_tags        = q.value(20).toString().toStdString();
+        t.style_tags       = q.value(21).toString().toStdString();
+        t.danceability     = q.value(22).toFloat();
+        t.valence          = q.value(23).toFloat();
+        t.vocal_prob       = q.value(24).toFloat();
+        t.essentia_analyzed= q.value(25).toInt() != 0;
+        t.is_prepared      = q.value(26).toInt() != 0;
+        result.append(t);
+    }
+    return result;
+}
+
+QVector<Track> Database::loadRecentlyPlayed(int limit)
+{
+    QVector<Track> result;
+    QSqlQuery q(m_db);
+    q.prepare(QStringLiteral(R"sql(
+        SELECT DISTINCT s.id, s.title, s.artist, s.album, s.genre,
+               s.bpm, s.rating, s.time, s.key_sig, s.date_added,
+               s.format, s.has_aiff, s.match_key, s.filepath,
+               s.color_label, s.bitrate, s.comment, s.play_count, s.date_played, s.energy,
+               s.mood_tags, s.style_tags, s.danceability, s.valence, s.vocal_prob,
+               s.essentia_analyzed, s.is_prepared
+        FROM songs s
+        JOIN play_history ph ON ph.song_id = s.id
+        ORDER BY ph.played_at DESC
+        LIMIT ?
+    )sql"));
+    q.addBindValue(limit);
+    if (!q.exec()) {
+        qWarning() << "loadRecentlyPlayed error:" << q.lastError().text();
+        return result;
+    }
+    while (q.next()) {
+        Track t;
+        t.id               = q.value(0).toLongLong();
+        t.title            = q.value(1).toString().toStdString();
+        t.artist           = q.value(2).toString().toStdString();
+        t.album            = q.value(3).toString().toStdString();
+        t.genre            = q.value(4).toString().toStdString();
+        t.bpm              = q.value(5).toDouble();
+        t.rating           = q.value(6).toInt();
+        t.time             = q.value(7).toString().toStdString();
+        t.key_sig          = q.value(8).toString().toStdString();
+        t.date_added       = q.value(9).toString().toStdString();
+        t.format           = q.value(10).toString().toStdString();
+        t.has_aiff         = q.value(11).toInt() != 0;
+        t.match_key        = q.value(12).toString().toStdString();
+        t.filepath         = q.value(13).toString().toStdString();
+        t.color_label      = q.value(14).toInt();
+        t.bitrate          = q.value(15).toInt();
+        t.comment          = q.value(16).toString().toStdString();
+        t.play_count       = q.value(17).toInt();
+        t.date_played      = q.value(18).toString().toStdString();
+        t.energy           = q.value(19).toInt();
+        t.mood_tags        = q.value(20).toString().toStdString();
+        t.style_tags       = q.value(21).toString().toStdString();
+        t.danceability     = q.value(22).toFloat();
+        t.valence          = q.value(23).toFloat();
+        t.vocal_prob       = q.value(24).toFloat();
+        t.essentia_analyzed= q.value(25).toInt() != 0;
+        t.is_prepared      = q.value(26).toInt() != 0;
+        result.append(t);
+    }
+    return result;
+}
+
+QVector<Track> Database::loadRecentlyAdded(int days)
+{
+    QVector<Track> result;
+    QSqlQuery q(m_db);
+    q.prepare(QStringLiteral(R"sql(
+        SELECT id, title, artist, album, genre, bpm, rating, time, key_sig,
+               date_added, format, has_aiff, match_key, filepath,
+               color_label, bitrate, comment, play_count, date_played, energy,
+               mood_tags, style_tags, danceability, valence, vocal_prob,
+               essentia_analyzed, is_prepared
+        FROM songs
+        WHERE date_added >= date('now', ?)
+        ORDER BY date_added DESC
+    )sql"));
+    q.addBindValue(QStringLiteral("-%1 days").arg(days));
+    if (!q.exec()) {
+        qWarning() << "loadRecentlyAdded error:" << q.lastError().text();
+        return result;
+    }
+    while (q.next()) {
+        Track t;
+        t.id               = q.value(0).toLongLong();
+        t.title            = q.value(1).toString().toStdString();
+        t.artist           = q.value(2).toString().toStdString();
+        t.album            = q.value(3).toString().toStdString();
+        t.genre            = q.value(4).toString().toStdString();
+        t.bpm              = q.value(5).toDouble();
+        t.rating           = q.value(6).toInt();
+        t.time             = q.value(7).toString().toStdString();
+        t.key_sig          = q.value(8).toString().toStdString();
+        t.date_added       = q.value(9).toString().toStdString();
+        t.format           = q.value(10).toString().toStdString();
+        t.has_aiff         = q.value(11).toInt() != 0;
+        t.match_key        = q.value(12).toString().toStdString();
+        t.filepath         = q.value(13).toString().toStdString();
+        t.color_label      = q.value(14).toInt();
+        t.bitrate          = q.value(15).toInt();
+        t.comment          = q.value(16).toString().toStdString();
+        t.play_count       = q.value(17).toInt();
+        t.date_played      = q.value(18).toString().toStdString();
+        t.energy           = q.value(19).toInt();
+        t.mood_tags        = q.value(20).toString().toStdString();
+        t.style_tags       = q.value(21).toString().toStdString();
+        t.danceability     = q.value(22).toFloat();
+        t.valence          = q.value(23).toFloat();
+        t.vocal_prob       = q.value(24).toFloat();
+        t.essentia_analyzed= q.value(25).toInt() != 0;
+        t.is_prepared      = q.value(26).toInt() != 0;
+        result.append(t);
+    }
+    return result;
 }
 
 bool Database::updateSongEssentiaAnalysis(long long songId, const QString& moodTags,

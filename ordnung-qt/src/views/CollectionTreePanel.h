@@ -45,12 +45,14 @@ signals:
     void createPlaylistRequested();
     void deletePlaylistRequested(long long id);
     void exportPlaylistRequested(long long playlistId);
+    void exportPlaylistM3uRequested(long long playlistId);
 
 private slots:
     void onItemClicked(QTreeWidgetItem* item, int column);
     void onContextMenu(const QPoint& pos);
     void onImportZoneClicked();
     void onImportZoneFilesDropped(const QStringList& paths);
+    void onItemExpanded(QTreeWidgetItem* item);
 
 private:
     void buildTree();
@@ -81,5 +83,6 @@ private:
         CreatePlaylist,
         HistoryDate,
         CategoryHeader,
+        PreparedTracks,
     };
 };
